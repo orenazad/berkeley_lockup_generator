@@ -91,7 +91,17 @@ function generateRGBColor(red, green, blue) {
 }
 
 
+function doColorScheme(layers, unitName, endorserLine, wordmarkColor, textColor, backgroundColor) {
+    // Generate CMYK Colors
 
+
+    editUnitNames(layers, unitName, textColor)
+    editEndorserLines(layers, endorserLine, textColor)
+    editBackgroundColors(layers, backgroundColor)
+    editWordmarks(layers, wordmarkColor)
+    editUCLayers(layers, wordmarkColor)
+    editTMLayers(layers, wordmarkColor)
+}
 
 
 function main() {
@@ -100,40 +110,57 @@ function main() {
         // Open the right document
     }
 
+    saveLocation = File.saveDialog('Save Location')
+    // if null we need to exit.
+    // Folders need to exist before we can save to them, will need to create folder structure!
+
+
     var doc = app.activeDocument;
     var layers = doc.layers;
 
     // Double check that the active document is correct using the document name.
 
-    // Generate CMYK Colors
-    const BerkeleyBlueColorCMYK = generateCMYKColor(100, 71, 10, 47);
-    const CaliforniaGoldColorCMYK = generateCMYKColor(0, 32, 100, 0);
+    // Generate colors
+    const BerkeleyBlueCMYK = generateCMYKColor(100, 71, 10, 47);
+    const WhiteCMYK = generateCMYKColor(0, 0, 0, 0)
+    const CaliforniaGoldCMYK = generateCMYKColor(0, 32, 100, 0);
 
-    editUnitNames(layers, 'test3', CaliforniaGoldColorCMYK)
-    editEndorserLines(layers, 'test4', CaliforniaGoldColorCMYK)
-    editBackgroundColors(layers, BerkeleyBlueColorCMYK)
-    editWordmarks(layers, BerkeleyBlueColorCMYK)
-    editUCLayers(layers, BerkeleyBlueColorCMYK)
-    editTMLayers(layers, CaliforniaGoldColorCMYK)
+    doColorScheme(layers, 'Rausser', 'School of Natural Resources', BerkeleyBlueCMYK, BerkeleyBlueCMYK, WhiteCMYK);
+    exportArtboardsAsPNG(doc, 'whiteBlue')
+    doColorScheme(layers, 'Rausser', 'School of Natural Resources', WhiteCMYK, WhiteCMYK, BerkeleyBlueCMYK);
+    exportArtboardsAsPNG(doc, 'blueWhite')
+    doColorScheme(layers, 'Rausser', 'School of Natural Resources', CaliforniaGoldCMYK, WhiteCMYK, BerkeleyBlueCMYK);
+    exportArtboardsAsPNG(doc, 'BlueYellow')
+    doColorScheme(layers, 'Rausser', 'School of Natural Resources', BerkeleyBlueCMYK, BerkeleyBlueCMYK, CaliforniaGoldCMYK);
+    exportArtboardsAsPNG(doc, 'YellowBlue')
 }
 
 main()
 
 
+// Saving
 
+function exportArtboardsAsEPS() {
+    alert('eps!')
+    var newFile = new File('/Users/orenazad/Desktop/PA-work/test');
+    var saveOpts = new EPSSaveOptions();
+    alert('yay')
+    saveOpts.saveMultipleArtboards = true;
+    saveOpts.artboardRange = calculateArtboardRange();
 
+    doc.saveAs(newFile, saveOpts);
+    // Should rename file here, according to which artboards were exported. OR, maybe if it exports artboard names?
+}
 
-function part2() {
+function calculateArtboardRange() {
+    return '';
+}
 
-    /// New Part
+function exportArtboardsAsPNG(doc, colorVariation) {
 
-    if (app.documents.length == 0) {
-        // Open the right document
-    }
-    var doc = app.activeDocument;//Gets the active document
     var fleName = doc.name.slice(0, 9);//Get the file code number not the full name;
     var numArtboards = doc.artboards.length;//returns the number of artboards in the document
-    var filePath = (app.activeDocument.fullName.parent.fsName).toString().replace(/\\/g, '/');
+    var filePath = (doc.fullName.parent.fsName).toString().replace(/\\/g, '/')
 
     $.writeln("fleName= ", fleName)
     $.writeln("numArtboards= ", numArtboards)
@@ -148,33 +175,13 @@ function part2() {
 
         var artboardName = doc.artboards[i].name;
         $.writeln("artboardName= ", artboardName);
-        var destFile = new File(filePath + "/" + fleName + " " + artboardName + ".png");
+        var fullCompleteFilePath = filePath + "/" + colorVariation + "/" + fleName + " " + artboardName + ".png"
+        var destFile = new File(fullCompleteFilePath);
         $.writeln("destFile= ", destFile);
         doc.exportFile(destFile, ExportType.PNG24, options);
     }
-
-    function calculateArtboardRange() {
-        return '';
-    }
-    function exportArtboardsAsEPS() {
-        alert('eps!')
-        var newFile = new File('/Users/orenazad/Desktop/PA-work/test');
-        var saveOpts = new EPSSaveOptions();
-        alert('yay')
-        saveOpts.saveMultipleArtboards = true;
-        saveOpts.artboardRange = calculateArtboardRange();
-
-        doc.saveAs(newFile, saveOpts);
-        // Should rename file here, according to which artboards were exported. OR, maybe if it exports artboard names?
-    }
-
-    exportArtboardsAsEPS()
+}
 
 
     // Sort by color, not by size. We pass in the folder (with the named color) to each function
     // organization_name/color/{png/eps}{all the sizes will be here}
-
-
-
-
-}
