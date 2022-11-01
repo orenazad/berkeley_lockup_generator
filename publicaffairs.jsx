@@ -1,29 +1,21 @@
+//TODO: Needs to be changed later for 2-Liners. 
 function editUnitNames(layers, text, color) {
-    var unitNameLayers = getLayerByName(layers, 'Unit Name Layers');
+    var unitNameLayers = getLayerByName(layers, 'Unit Name Line Layers');
     var textFrames = unitNameLayers.textFrames;
     editTextFramesText(textFrames, text)
     editTextFramesFillColor(textFrames, color)
 }
 
-function editBackgroundColors(layers, color) {
-    var backgroundLayers = getLayerByName(layers, 'Background Layers');
-    var backgrounds = backgroundLayers.pathItems;
-    for (var i = 0; i < backgrounds.length; i++) {
-        backgrounds[i].fillColor = color;
-    }
+function editEndorserLines(layers, text, color) {
+    var endorserLineLayers = getLayerByName(layers, 'Endorser Line Layers');
+    var textFrames = endorserLineLayers.textFrames;
+    editTextFramesText(textFrames, text)
+    editTextFramesFillColor(textFrames, color)
 }
 
 function editWordmarks(layers, color) {
-    var wordMarkLayer = getLayerByName(layers, 'Wordmark');
-    var compoundPaths = wordMarkLayer.compoundPathItems;
-    for (var i = 0; i < compoundPaths.length; i++) {
-        compoundPaths[i].pathItems[0].fillColor = color;
-    }
-}
-
-function editTMLayers(layers, color) {
-    var tmLayer = getLayerByName(layers, 'TM Layer');
-    var groupItems = tmLayer.groupItems;
+    var wordMarkLayer = getLayerByName(layers, 'Berkeley Wordmark Layers');
+    var groupItems = wordMarkLayer.groupItems;
     for (var i = 0; i < groupItems.length; i++) {
         var compoundPaths = groupItems[i].compoundPathItems;
         for (var j = 0; j < compoundPaths.length; j++) {
@@ -33,7 +25,7 @@ function editTMLayers(layers, color) {
 }
 
 function editUCLayers(layers, color) {
-    var ucLayer = getLayerByName(layers, 'UC Layer');
+    var ucLayer = getLayerByName(layers, 'UC Line Layers');
     var compoundPaths = ucLayer.compoundPathItems;
     for (var i = 0; i < compoundPaths.length; i++) {
         compoundPaths[i].pathItems[0].fillColor = color;
@@ -44,11 +36,23 @@ function editUCLayers(layers, color) {
     }
 }
 
-function editEndorserLines(layers, text, color) {
-    var endorserLineLayers = getLayerByName(layers, 'Endorser Line Layers');
-    var textFrames = endorserLineLayers.textFrames;
-    editTextFramesText(textFrames, text)
-    editTextFramesFillColor(textFrames, color)
+function editTMLayers(layers, color) {
+    var tmLayer = getLayerByName(layers, 'Trademark Symbol Layers');
+    var groupItems = tmLayer.groupItems;
+    for (var i = 0; i < groupItems.length; i++) {
+        var compoundPaths = groupItems[i].compoundPathItems;
+        for (var j = 0; j < compoundPaths.length; j++) {
+            compoundPaths[j].pathItems[0].fillColor = color;
+        }
+    }
+}
+
+function editBackgroundColors(layers, color) {
+    var backgroundLayers = getLayerByName(layers, 'Background Layers');
+    var backgrounds = backgroundLayers.pathItems;
+    for (var i = 0; i < backgrounds.length; i++) {
+        backgrounds[i].fillColor = color;
+    }
 }
 
 
