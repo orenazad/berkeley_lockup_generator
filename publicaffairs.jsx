@@ -185,3 +185,7 @@ function exportArtboardsAsPNG(doc, colorVariation) {
 
     // Sort by color, not by size. We pass in the folder (with the named color) to each function
     // organization_name/color/{png/eps}{all the sizes will be here}
+
+
+    // Hide University of California line and TM in EPS
+    // See if you can use Pantone colors. 
