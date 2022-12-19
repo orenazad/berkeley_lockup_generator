@@ -1,87 +1,104 @@
-function editSingleUnitNames(layers, color, text) {
-    var unitNameLayers = getLayerByName(layers, 'Unit Name Lines');
-    var textFrames = unitNameLayers.textFrames;
-    editTextFramesText(textFrames, text)
-    editTextFramesFillColor(textFrames, color)
-}
-
-function editDoubleUnitNames(layers, color, line1, line2) {
-    // TODO: Implement
-    alert('Not implemented yet!')
-}
-
 // TODO: We won't be doing this like this. We should have an options dictionary that we pass around. If 'double' is in the options dictionary, we use the double only.
-function editUnitNames(layers, color, line1, line2) {
+function editUnitText(layers, line1, line2) {
+    // TODO: Is this going to run into problems for re-initializing stuff or something?
+    // If line2 is undefined, only edit the single line variants.
+    if (line2 == undefined) {
+        let layer = getLayerByName(layers, 'Single Unit Name Lines');
+        let textFrames = layer.textFrames;
 
-    // Past this character limit, split the word into two lines.
-    characterLimit = 100
+        alert('here')
+        layer.locked = true
+        editTextFramesText(textFrames, line1)  
+        layer.locked = false
 
-    // If line2 is defined, move directly on to editing the double lined variants.
-    if (line2 !== undefined) {
-        editDoubleUnitNames(layers, color, line1, line2)
     } else {
-        // All the text will be in line1, as line2 is undefined.
-        if (line1.length > characterLimit) {
-            // TODO: Somehow split this into two lines. Could we somehow just use illustrator for this?
-            editDoubleUnitNames(layers, color, line1, line2)
-        } else {
-            editSingleUnitNames(layers, color, text)
-        }
+        // TODO: This still needs to be implemented properly. This is not correct.
+        // TODO: This needs locks
+        let textFrames = getLayerByName(layers, 'Single Unit Name Lines').textFrames;
+        editTextFramesText(textFrames, line1)
+        textFrames = getLayerByName(layers, 'Double Unit Name Lines').textFrames;
+        editTextFramesText(textFrames, line2)
     }
-
+    return (getLayerByName(layers, 'Single Unit Name Lines').textFrames)
 }
 
-function editEndorserLines(layers, color, text) {
-    var endorserLineLayers = getLayerByName(layers, 'Endorser Lines');
-    var textFrames = endorserLineLayers.textFrames;
-    editTextFramesText(textFrames, text)
+function editUnitColor(layers, color) {
+
+    // Single Lines
+    let layer = getLayerByName(layers, 'Single Unit Name Lines')
+    let textFrames = layer.textFrames
+
+    // Unlock, edit the fill color, and lock
+    layer.locked = true
     editTextFramesFillColor(textFrames, color)
+    layer.locked = false
+
+    // Double Lines
+    layer = getLayerByName(layers, 'Double Unit Name Lines')
+    textFrames = layer.textFrames
+
+    // Unlock, edit the fill color, and lock
+    layer.locked = true
+    editTextFramesFillColor(textFrames, color)
+    layer.locked = false
 }
 
 function editWordmarks(layers, color) {
-    var wordMarkLayer = getLayerByName(layers, 'Berkeley Wordmarks');
-    var groupItems = wordMarkLayer.groupItems;
-    for (var i = 0; i < groupItems.length; i++) {
-        var compoundPaths = groupItems[i].compoundPathItems;
-        for (var j = 0; j < compoundPaths.length; j++) {
+    const layer = getLayerByName(layers, 'Berkeley Wordmarks');
+    const groupItems = layer.groupItems;
+
+    layer.locked = true
+    for (let i = 0; i < groupItems.length; i++) {
+        const compoundPaths = groupItems[i].compoundPathItems;
+        for (let j = 0; j < compoundPaths.length; j++) {
             compoundPaths[j].pathItems[0].fillColor = color;
         }
     }
+    layer.locked = false
 }
 
 function editUCLayers(layers, color) {
-    var ucLayer = getLayerByName(layers, 'UC Lines');
-    var compoundPaths = ucLayer.compoundPathItems;
-    for (var i = 0; i < compoundPaths.length; i++) {
+    const layer = getLayerByName(layers, 'UC Lines');
+    const compoundPaths = layer.compoundPathItems;
+
+    layer.locked = true
+    for (let i = 0; i < compoundPaths.length; i++) {
         compoundPaths[i].pathItems[0].fillColor = color;
     }
-    var paths = ucLayer.pathItems;
-    for (var i = 0; i < paths.length; i++) {
+    const paths = ucLayer.pathItems;
+    for (let i = 0; i < paths.length; i++) {
         paths[i].fillColor = color;
     }
+    layer.locked = false
 }
 
 function editTMLayers(layers, color) {
-    var tmLayer = getLayerByName(layers, 'Trademark Symbols');
-    var groupItems = tmLayer.groupItems;
-    for (var i = 0; i < groupItems.length; i++) {
-        var compoundPaths = groupItems[i].compoundPathItems;
-        for (var j = 0; j < compoundPaths.length; j++) {
+    const layer = getLayerByName(layers, 'Trademark Symbols');
+    const groupItems = layer.groupItems;
+
+    layer.locked = true
+    for (let i = 0; i < groupItems.length; i++) {
+        const compoundPaths = groupItems[i].compoundPathItems;
+        for (let j = 0; j < compoundPaths.length; j++) {
             compoundPaths[j].pathItems[0].fillColor = color;
         }
     }
+    layer.locked = false
 }
 
 function editBackgroundColors(layers, color) {
-    var backgroundLayers = getLayerByName(layers, 'Backgrounds');
-    var backgrounds = backgroundLayers.pathItems;
-    for (var i = 0; i < backgrounds.length; i++) {
+    const layer = getLayerByName(layers, 'Backgrounds');
+    const backgrounds = layers.pathItems;
+
+    layer.locked = true
+    for (let i = 0; i < backgrounds.length; i++) {
         backgrounds[i].fillColor = color;
     }
+    layer.locked = false
 }
 
 function getLayerByName(layers, name) {
-    for (var i = 0; i < layers.length; i++) {
+    for (let i = 0; i < layers.length; i++) {
         if (layers[i].name == name) {
             return layers[i];
         }
@@ -89,32 +106,71 @@ function getLayerByName(layers, name) {
 }
 
 function editTextFramesText(textFrames, text) {
-    for (var i = 0; i < textFrames.length; i++) {
+    for (let i = 0; i < textFrames.length; i++) {
         textFrames[i].contents = text
     }
 }
 
 function editTextFramesFillColor(textFrames, color) {
-    for (var i = 0; i < textFrames.length; i++) {
-        var textFrame = textFrames[i]
+    for (let i = 0; i < textFrames.length; i++) {
         textFrames[i].textRange.fillColor = color
     }
 }
 
+function createOutlines(textFrames) {
+    for (let i = 0; i < textFrames.length; i++) {
+        textFrames[i].createOutline()
+    }
+}
 
-function doColorScheme(layers, unitName, endorserLine, wordmarkColor, textColor, backgroundColor) {
+function undoOutlines(textFrames) {
+    for (let i = 0; i < textFrames.length; i++) {
+        // TODO: We should pass doc here.
+        app.activeDocument.undo()
+    }
+}
 
-    // 1. Edit the background color for each artboard.
+/**
+ * 
+ * @param {*} layers 
+ * @param {*} unitName 
+ * @param {*} endorserLine 
+ * @param {*} wordmarkColor 
+ * @param {*} textColor 
+ * @param {*} backgroundColor 
+ */
+function doColorScheme(layers, unitName, endorserLine, wordmarkColor, textColor, backgroundColor) { //TODO We should have this function only do the colors, the one that does the text calls this one.
+
+    // 1. Edit the TEXT only for the unit names
+    // This also returns the text frames for use later.
+    const unitTextFrames = editUnitText(layers, unitName)
+
+    // 2. Edit the TEXT only for the endorser line
+    const endorserTextFrames = getLayerByName(layers, 'Endorser Lines').textFrames;
+    editTextFramesText(endorserTextFrames, endorserLine)
+
+    // 3. Edit the colors for the background, wordmark etc
     editBackgroundColors(layers, backgroundColor)
-
-    // 2. Edit the Unit Names. TODO: Pass options dictionary here. 
-    editUnitNames(layers, textColor, unitName)
-
-    // 3. Edit the endorser line.
-    editEndorserLines(layers, textColor, endorserLine)
     editWordmarks(layers, wordmarkColor)
     editUCLayers(layers, wordmarkColor)
     editTMLayers(layers, wordmarkColor)
+
+    // 4. Edit the color for the unit names
+    editUnitColor(layers, textColor)
+
+    // 5. Edit the color for the endorser lines
+    editTextFramesFillColor(endorserLineTextFrames, endorserLine)
+
+    // 6. Convert textFrames to outlines
+    createOutlines(unitTextFrames)
+    createOutlines(endorserTextFrames)
+
+    // TODO: Save here.
+    alert('here')
+
+    undoOutlines(unitTextFrames)
+    undoOutlines(endorserTextFrames)
+
 }
 
 function getArtboardOutputFilepath(index) {
@@ -183,10 +239,10 @@ function main() {
 
     const BerkeleyBlueCMYK = generateColors('CMYK', 'blue')
     const CaliforniaGoldCMYK = generateColors('CMYK', 'gold')
-    const WhiteCMYK = generateColors('CYMK', 'white')
+    const WhiteCMYK = generateColors('CMYK', 'white')
 
-    // doColorScheme(layers, 'Rausser', 'School of Natural Resources', BerkeleyBlueCMYK, BerkeleyBlueCMYK, WhiteCMYK);
-    // // exportArtboardsAsPNG(doc, 'whiteBlue')
+    doColorScheme(layers, 'Rausser', 'School of Natural Resources', BerkeleyBlueCMYK, BerkeleyBlueCMYK, WhiteCMYK);
+    // exportArtboardsAsPNG(doc, 'whiteBlue')
     // doColorScheme(layers, 'Rausser', 'School of Natural Resources', WhiteCMYK, WhiteCMYK, BerkeleyBlueCMYK);
     // // exportArtboardsAsPNG(doc, 'blueWhite')
     // doColorScheme(layers, 'Rausser', 'School of Natural Resources', CaliforniaGoldCMYK, WhiteCMYK, BerkeleyBlueCMYK);
@@ -246,7 +302,7 @@ function exportArtboardsAsPNG(doc, colorVariation) {
 
 // Needs testing
 function createFolderPathIfNotExist(path) {
-    var f = new Folder(path);
+    let f = new Folder(path);
     if (!f.exists) {
         f.create();
     }
