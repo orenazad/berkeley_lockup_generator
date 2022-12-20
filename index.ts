@@ -1,5 +1,4 @@
 /// <reference types="./ts-types/"/>
-//@include "ScriptUIPanel.jsx"
 
 function getLayerByName(layers: Layers, name: string) {
     for (let i = 0; i < layers.length; i++) {
@@ -148,7 +147,6 @@ function editTMLayers(layers: Layers, color: Color) {
     layer.locked = true;
 }
 
-
 function editBackgroundColors(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Backgrounds');
     const backgrounds = layer.pathItems;
@@ -250,21 +248,45 @@ function getArtboardOutputFilepath(index) {
     return outputPathDict[index]
 }
 
-function main() {
-
+function openMasterDocument(only_check: boolean) {
     // This script should be right next to the master-AI document.
     // TODO: Double check that this is in CMYK Color. Or RGB, Whatever they want.
     // TODO: This should be a relative path.
     // TODO: This should be versioned.
     const masterDocumentFileName = 'Lockup-Master-Document.ai';
     const masterDocumentFilePath = '/Users/orenazad/Desktop/PA-work/' + masterDocumentFileName;
+
+    // Only check that the master document is open and active, don't open it automatically.
+    if (only_check) {
+        if (app.activeDocument.name == masterDocumentFileName){
+            return app.activeDocument;
+        } else {
+            alert("The master document was not open when checking! Make sure to have the Master document open and active before hitting the 'export' button.")
+            return false;
+        }
+    }
+    // Either there are no documents open, or the master document is not opened.
     if (app.documents.length == 0 || !app.getIsFileOpen(masterDocumentFilePath)) {
         const masterDocumentFile = new File(masterDocumentFilePath)
         if (!masterDocumentFile.exists) {
             alert('Error: Could not open master document file at path:' + masterDocumentFilePath)
+            return false;
         }
         app.open(masterDocumentFile);
+    } else { // The master document is open, make it the active document.
+        for (let i = 0; i < app.documents.length; i++) {
+            if (app.documents[i].name == masterDocumentFileName) {
+                app.activeDocument = app.documents[i];
+                return app.activeDocument;
+            }
+        }
     }
+    return false;
+}
+
+function main() {
+
+
 
     // TODO: This needs fixing to use relative locations.
     const saveLocation = '/Users/orenazad/Desktop/PA-work/output/test'
@@ -284,11 +306,11 @@ function main() {
     // TODO: This code shouldn't really run in main, we need to move a lot of this code to only be called when neccessary. For example, if we have a button for them to open the active document this shouldn't be called until actual exporting.
     let doc = app.activeDocument;
 
-    if (doc.name != masterDocumentFileName) {
-        alert('This script is running on the incorrect document. Please make sure the Master Document is the current active document.')
-        alert('Current Active Document: ' + doc.name)
-        return
-    }
+    // if (doc.name != masterDocumentFileName) {
+    //     alert('This script is running on the incorrect document. Please make sure the Master Document is the current active document.')
+    //     alert('Current Active Document: ' + doc.name)
+    //     return
+    // }
 
     let layers = doc.layers;
 
@@ -308,10 +330,6 @@ function main() {
 
     doFullEdit(doc, layers, ['Rausser', 'testy boy'], 'School of Natural Resources', colorSchemes);
 }
-
-// @ts-ignore:next-line
-createDialog();
-
 
 // Saving
 
