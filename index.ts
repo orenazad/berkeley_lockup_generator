@@ -1,5 +1,7 @@
 /// <reference types="./ts-types/"/>
 
+//@include "ScriptUIPanel.jsx"
+
 function getLayerByName(layers: Layers, name: string) {
     for (let i = 0; i < layers.length; i++) {
         if (layers[i].name == name) {
@@ -116,10 +118,7 @@ function editWordmarks(layers: Layers, color: Color) {
     layer.locked = true;
 }
 
-function editUCLayers(layers: Layers, color?: Color, hide?: boolean) {
-    if (color == undefined && hide == undefined) {
-        alert('Error: Both Color and Hide cannot be undefined in editUCLayers')
-    }
+function editUCLayers(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'UC Lines');
     const compoundPaths = layer.compoundPathItems;
     layer.locked = false;
@@ -135,10 +134,7 @@ function editUCLayers(layers: Layers, color?: Color, hide?: boolean) {
     layer.locked = true;
 }
 
-function editTMLayers(layers: Layers, color?: Color, hide?: boolean) {
-    if (color == undefined && hide == undefined) {
-        alert('Error: Both Color and Hide cannot be undefined in editUCLayers')
-    }
+function editTMLayers(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Trademark Symbols');
     const groupItems = layer.groupItems;
     layer.locked = false; 
@@ -153,7 +149,8 @@ function editTMLayers(layers: Layers, color?: Color, hide?: boolean) {
     layer.locked = true;
 }
 
-function editBackgroundColors(layers: Layers, color) {
+
+function editBackgroundColors(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Backgrounds');
     const backgrounds = layer.pathItems;
 
@@ -213,11 +210,16 @@ function doColorsAndSave(doc: Document, layers: Layers, colorScheme: Color[], us
     translateTextFrames(unitTextFrames[1], dx, dy)
     translateTextFrames(endorserTextFrames, dx, dy)
 
-    // 9: Save as EPS File: For the EPS file, we hide the UC Text and Trademark by default
-    if (use_uc_and_tm_eps) {
-
-    }
+    // 9: Save as EPS File: For the EPS file, we have the option for hiding the UC Text and Trademark
+    // TODO: Replace with proper logic. Should use options dictionary here.
+    const hideUCandTM = true
+    getLayerByName(layers, 'UC Lines').visible = !(hideUCandTM)
+    getLayerByName(layers, 'Trademark Symbols').visible = !(hideUCandTM);
     exportArtboardsAsEPS(doc, useDoubleLine)
+
+    // 10: Save as PNG file
+    getLayerByName(layers, 'UC Lines').visible = true
+    getLayerByName(layers, 'Trademark Symbols').visible = true
 
     // 11. Delete the Group Items (the traced text)
     deleteGroupItems(unitTextSingleGroup)
@@ -310,7 +312,8 @@ function main() {
     doFullEdit(doc, layers, ['Rausser', 'testy boy'], 'School of Natural Resources', colorSchemes);
 }
 
-main()
+// @ts-ignore
+createDialog();
 
 
 // Saving
