@@ -413,7 +413,7 @@ function createDialog() {
 
         // One of these should be checked, if not both.
         // TODO: Same should be done for CMYK / RGB, but use radio button instead.
-        // TODO: We can have another master file for CMYK. The current one is RGB
+        // TODO: We can have another master file for CMYK. The current one is RGB.
         if (pngCheckbox.value == false && epsCheckbox.value == false) {
             alert('Either the PNG or EPS export option should be checked.')
             return;
