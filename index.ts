@@ -286,39 +286,9 @@ function openMasterDocument(only_check: boolean) {
     return false;
 }
 
-function main() {
 
 
-
-    // TODO: This needs fixing to use relative locations.
-    const saveLocation = '/Users/orenazad/Desktop/PA-work/output/test'
-    createFolderPathIfNotExist(saveLocation);
-
-    // This should have the option to change the output folder. 
-    if (saveLocation == undefined) {
-        // Could add a default location here?
-        alert('No file location selected! Please re-run the script and select a file location to continue.');
-        return;
-    }
-    // Folders need to exist before we can save to them, will need to create folder structure!
-
-    // This is the active document we will be using.
-    // Double check that the active document is correct using the document name.
-    // TODO: We can open the active document here for them probably.
-    // TODO: This code shouldn't really run in main, we need to move a lot of this code to only be called when neccessary. For example, if we have a button for them to open the active document this shouldn't be called until actual exporting.
-    let doc = app.activeDocument;
-
-    // if (doc.name != masterDocumentFileName) {
-    //     alert('This script is running on the incorrect document. Please make sure the Master Document is the current active document.')
-    //     alert('Current Active Document: ' + doc.name)
-    //     return
-    // }
-
-}
-
-// Saving
-
-// We can pass in a boolean here to hide the TM like Neil said.
+//TODO: This should not have a hard set filepath.
 function exportArtboardsAsEPS(doc: Document, options: {}) {
     let newEPSFile: File = new File('/Users/orenazad/Desktop/PA-work/test');
     let saveOptions: EPSSaveOptions = new EPSSaveOptions();
@@ -326,6 +296,7 @@ function exportArtboardsAsEPS(doc: Document, options: {}) {
     saveOptions.artboardRange = calculateArtboardRange(options);
 
     doc.saveAs(newEPSFile, saveOptions);
+    // TODO: I think this is fine, reevaluate though.
     // Should rename file here, according to which artboards were exported. OR, maybe if it exports artboard names?
 }
 
@@ -385,11 +356,10 @@ function createFolderPathIfNotExist(path) {
     // organization_name/color/{png/eps}{all the sizes will be here}
 
 
-    // Hide University of California line and TM in EPS
-
+////////////////
+// COLOR
 ////////////////
 // These functions are for generating the RGB and CMYK colors.
-////////////////
 
 function generateColors(colorSpace, colorName: string) {
     const colorDictCMYK = {
