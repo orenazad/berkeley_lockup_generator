@@ -1,5 +1,4 @@
 /// <reference types="./ts-types/"/>
-
 //@include "ScriptUIPanel.jsx"
 
 function getLayerByName(layers: Layers, name: string) {
@@ -251,8 +250,6 @@ function getArtboardOutputFilepath(index) {
     return outputPathDict[index]
 }
 
-
-
 function main() {
 
     // This script should be right next to the master-AI document.
@@ -312,7 +309,7 @@ function main() {
     doFullEdit(doc, layers, ['Rausser', 'testy boy'], 'School of Natural Resources', colorSchemes);
 }
 
-// @ts-ignore
+// @ts-ignore:next-line
 createDialog();
 
 
