@@ -124,7 +124,7 @@ declare class Window extends _Control {
    * Tells the layout manager how unlike-sized children of this container should be aligned within a column or row.
    * Order of creation determines which children are at the top of a column or the left of a row; the earlier a child is created, the closer it is to the top or left of its column or row. If defined, alignment for a child element overrides the alignChildren setting for the parent container. See alignment property for values.
    */
-  alignChildren: string
+  alignChildren: string | string[]
 
   /**
    * For windows of type dialog, the UI element to notify when the user presses a cancellation key combination.
@@ -932,6 +932,11 @@ declare class IconButton extends _Control {
    * The key sequence that invokes the onShortcutKey() callback for this element (in Windows only).
    */
   shortcutKey: string
+
+  /**
+   * The text to display, a localizable string.
+   */
+  text: string
 
   /**
    * Sends a notification message, simulating the specified user interaction event.
@@ -2036,7 +2041,7 @@ declare class Panel extends _Control {
   /**
    * Specifies how to align the child elements.
    */
-  alignChildren: string
+  alignChildren: string | string[]
 
   /**
    * Reserve space for the specified number of characters; affects calculation of preferredSize .
