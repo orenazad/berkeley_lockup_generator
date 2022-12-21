@@ -494,14 +494,24 @@ function createDialog() {
                 if (endNumber >= csvJSON.length) {
                     alert('The entered end number is not valid!');
                 }
+                progressbar.value = 0;
+                progressbar.maxvalue = endNumber - startNumber + 1;
+                progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                 for (let i = startNumber; i <= endNumber; i++) {
                     const csvLine = csvJSON[i];
                     doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+                    progressbar.value++;
+                    progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                 }
             } else if (fullCSVButton.value) {
+                progressbar.value = 0;
+                progressbar.maxvalue = csvJSON.length;
+                progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                 for (let i = 0; i < csvJSON.length; i++) {
                     const csvLine = csvJSON[i];
                     doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+                    progressbar.value++;
+                    progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                 }
             } else {
                 alert('Error! None of the radio buttons were selected, but somehow the CSV button was selected. Please report this.')
