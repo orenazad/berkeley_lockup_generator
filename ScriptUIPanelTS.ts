@@ -329,10 +329,6 @@ function createDialog() {
     // =====
     OpenMasterFileButton.onClick = function() {
         openMasterDocument(false);
-
-        // Disable and Enable the button. If the master document is already open and active, nothing happens, so we must do this to refresh the button.
-        OpenMasterFileButton.enabled = false;
-        OpenMasterFileButton.enabled = true;
     }
 
     customInputPanel.enabled = customInputRadioButton.value;
@@ -468,22 +464,22 @@ function createDialog() {
 
         // We are using the custom input, no CSV file.
         if (customInputRadioButton.value) {
-            if (unitNameText1.text == 'Unit Name Line 1' || unitNameText1.text == "") {
-                alert('Unit Name Line 1 has not been filled out.');
-                return;
-            }
-            if (unitNameText2.text == 'Unit Name Line 2' || unitNameText2.text == '') {
-                options['useDoubleUnitLine'] = false;
-             }
-            if (endorserLineText.text == 'Endorser Line' || endorserLineText.text == '') {
-                options['useEndorserLine'] = false;
-            }
             doFullEdit(doc, layers, options, colorSchemes, [unitNameText1.text, unitNameText2.text], endorserLineText.text)
         }
         else if (csvRadioButton.value) {
             //@ts-expect-error
             var csvJSON = new CSV.toJSON(csvFile, false, ',')
-            alert(csvJSON);
+            // csvJSON has [0] as the first row of actual data in the CSV file.
+            // That is to say, the CSV header (the titles for each row) is removed. 
+            // The titles for each row become the keys for the data.
+            // The first row in the CSV is marked as '1'. Actual data values starts in row '2'. So we must apply a -2 offset to entered values. 
+
+            // We only need a single value from the CSV list.
+            if (singleLineRadioButton.value) {
+                const lineNumber: number = parseInt(singleLineText.text) - 2;
+                const csvLine = csvJSON[lineNumber]
+                doCSVFullEdit(doc, layers, options, colorSchemes, csvLine)
+            }
         }
     }
 

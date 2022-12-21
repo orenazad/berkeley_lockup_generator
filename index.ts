@@ -156,7 +156,26 @@ function editBackgroundColors(layers: Layers, color: Color) {
     layer.locked = true;
 }
 
+function doCSVFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Color[][], csvLine: Object) {
+    const unitNameLine1 = csvLine['Unit Name Line 1']
+    const unitNameLine2 = csvLine['Unit Name Line 2']
+    const endorserLine = csvLine['Endorser Line']
+    doFullEdit(doc, layers, options, colorSchemes, [unitNameLine1, unitNameLine2], endorserLine)
+}
+
+
 function doFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Color[][], unitNames: string[], endorserLine: string) {
+
+    if (typeof unitNames[0] === undefined ||  unitNames[0] == 'Unit Name Line 1' || unitNames[0] == "") {
+        alert('Unit Name Line 1 has not been filled out.');
+        return;
+    }
+    if (typeof unitNames[1] === undefined || unitNames[1] == 'Unit Name Line 2' || unitNames[1] == '') {
+        options['useDoubleUnitLine'] = false;
+     }
+    if (typeof endorserLine === undefined || endorserLine == 'Endorser Line' || endorserLine == '') {
+        options['useEndorserLine'] = false;
+    }
 
     // 1. Edit the TEXT only for the unit names
     editUnitText(layers, options, unitNames);
@@ -263,7 +282,7 @@ function openMasterDocument(only_check: boolean) {
         if (app.documents.length > 0 && app.activeDocument.name == masterDocumentFileName) {
             return app.activeDocument;
         } else {
-            alert("The master document was not open when checking! Make sure to have the Master document open and active before hitting the 'export' button.")
+            alert("The lockup document was not open when checking! Make sure to have the Master document open and active before hitting the 'export' button.")
             return false;
         }
     }
@@ -271,11 +290,15 @@ function openMasterDocument(only_check: boolean) {
     if (app.documents.length == 0 || !app.getIsFileOpen(masterDocumentFilePath)) {
         const masterDocumentFile = new File(masterDocumentFilePath)
         if (!masterDocumentFile.exists) {
-            alert('Error: Could not open master document file at path:' + masterDocumentFilePath)
+            alert('Error: Could not open lockup document file at path:' + masterDocumentFilePath)
             return false;
         }
         app.open(masterDocumentFile);
     } else { // The master document is open, make it the active document.
+        if (app.activeDocument.name == masterDocumentFileName) {
+            alert('The lockup document is already open and active!');
+            return app.activeDocument;
+        }
         for (let i = 0; i < app.documents.length; i++) {
             if (app.documents[i].name == masterDocumentFileName) {
                 app.activeDocument = app.documents[i];

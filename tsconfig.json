@@ -1,1 +1,11 @@
-{"compilerOptions":{"module":"none","noLib":true}}
+{
+    "compilerOptions": {
+      "module": "none",
+      "strict": false,
+      "noLib": true,
+      "typeRoots": [],
+      "removeComments": true,
+    },
+    "exclude": ["node_modules"]
+  }
+  
