@@ -4,8 +4,14 @@ Code for Import https://scriptui.joonas.me — (Triple click to select):
 */ 
 
 /// <reference types="./ts-types/"/>
-//@include "index.js"
-//@include "CSV.jsx"
+
+// Include other files.
+// https://www.ps-scripts.com/viewtopic.php?f=77&t=21946
+const scriptFolder: Folder = new File($.fileName).parent;
+let jsxFile = new File(scriptFolder + "/index.js");
+$.evalFile(jsxFile)
+jsxFile = new File(scriptFolder + "/CSV.jsx");
+$.evalFile(jsxFile)
 
 function createDialog() {
 
@@ -22,7 +28,7 @@ function createDialog() {
         titleText.text = "Berkeley Lockup Generator v1.0"; 
 
     var OpenMasterFileButton = dialog.add("button", undefined, undefined, {name: "OpenMasterFileButton"}); 
-        OpenMasterFileButton.helpTip = "The master lockup file needs to be opened for the script to work. ´"; 
+        OpenMasterFileButton.helpTip = "The master lockup file needs to be opened for the script to work."; 
         OpenMasterFileButton.text = "Open Lockup File"; 
         OpenMasterFileButton.alignment = ["fill","top"]; 
 
@@ -382,8 +388,14 @@ function createDialog() {
 
     // CSV Path will be false until we have a good CSV file.
     let csvPath = "";
+    let csvFile: File;
     selectCSVInputIconButton.onClick = function() {
-        const csvFile = File.openDialog('Open CSV File', 'CSV:*.csv');
+        const os = $.os.toLowerCase().indexOf('mac') >= 0 ? "MAC": "WINDOWS";
+        if (os == 'MAC') {
+            csvFile = File.openDialog('Select a CSV File', function (f) { return (f instanceof Folder) || f.name.match(/\.csv$/i);} );
+        } else {
+            csvFile = File.openDialog('Select a CSV File','comma-separated-values(*.csv):*.csv;');
+        }
         const csvFileSuccess = csvFile.open('r');
         if (!csvFileSuccess) {
           alert("Could not open CSV file correctly!")
@@ -401,6 +413,14 @@ function createDialog() {
         const doc = openMasterDocument(true);
         if (!doc) {
             return;
+        }
+
+        // Check that the CSV path is good if we are using the CSV.
+        if (csvRadioButton.value) {
+            if (csvPath == "") {
+                alert("Error: The CSV Path doesn't seem to be a valid file.")
+                return;
+            }
         }
 
         // 2. Check to make sure the Output Folder is correct.
@@ -449,7 +469,7 @@ function createDialog() {
         // We are using the custom input, no CSV file.
         if (customInputRadioButton.value) {
             if (unitNameText1.text == 'Unit Name Line 1' || unitNameText1.text == "") {
-                alert('Unit Name Line 1 has not been filled out.')
+                alert('Unit Name Line 1 has not been filled out.');
                 return;
             }
             if (unitNameText2.text == 'Unit Name Line 2' || unitNameText2.text == '') {
@@ -459,6 +479,11 @@ function createDialog() {
                 options['useEndorserLine'] = false;
             }
             doFullEdit(doc, layers, options, colorSchemes, [unitNameText1.text, unitNameText2.text], endorserLineText.text)
+        }
+        else if (csvRadioButton.value) {
+            //@ts-expect-error
+            var csvJSON = new CSV.toJSON(csvFile, false, ',')
+            alert(csvJSON);
         }
     }
 

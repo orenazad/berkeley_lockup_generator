@@ -58,22 +58,20 @@ function translateTextFrames(textFrames: TextFrameItems, dx: number, dy: number)
     layer.locked = true
 }
 
-function editUnitText(layers: Layers, line1: string, line2?: string) {
-    // If line2 is undefined, only edit the single line variants.
-    if (line2 == undefined) {
-        let layer = getLayerByName(layers, 'Single Unit Name Lines');
-        const textFrames = layer.textFrames;
-
-        layer.locked = false;
-        editTextFramesText(textFrames, line1);
-        layer.locked = true;
-
-    } else {
+function editUnitText(layers: Layers, options: {}, unitNames: string[]) {
+    if (options['useDoubleUnitLine']) {
         let layer = getLayerByName(layers, 'Double Unit Name Lines')
         const textFrames = layer.textFrames;
 
         layer.locked = false;
-        editTextFramesText(textFrames, line1, line2);
+        editTextFramesText(textFrames, unitNames[0], unitNames[1]);
+        layer.locked = true;
+    } else {
+        let layer = getLayerByName(layers, 'Single Unit Name Lines');
+        const textFrames = layer.textFrames;
+
+        layer.locked = false;
+        editTextFramesText(textFrames, unitNames[0]);
         layer.locked = true;
     }
 }
@@ -161,11 +159,13 @@ function editBackgroundColors(layers: Layers, color: Color) {
 function doFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Color[][], unitNames: string[], endorserLine: string) {
 
     // 1. Edit the TEXT only for the unit names
-    editUnitText(layers, unitNames[0], unitNames[1]);
+    editUnitText(layers, options, unitNames);
 
     // 2. Edit the TEXT only for the endorser line
-    const endorserTextFrames = getLayerByName(layers, 'Endorser Lines').textFrames;
-    editTextFramesText(endorserTextFrames, endorserLine);
+    if (options['useEndorserLine']) {
+        const endorserTextFrames = getLayerByName(layers, 'Endorser Lines').textFrames;
+        editTextFramesText(endorserTextFrames, endorserLine);
+    }
 
     // 3. Do color operations and save the file for every color in the chosen color scheme.
     for (let i = 0; i < colorSchemes.length; i++) {
@@ -260,7 +260,7 @@ function openMasterDocument(only_check: boolean) {
 
     // Only check that the master document is open and active, don't open it automatically.
     if (only_check) {
-        if (app.activeDocument.name == masterDocumentFileName){
+        if (app.documents.length > 0 && app.activeDocument.name == masterDocumentFileName) {
             return app.activeDocument;
         } else {
             alert("The master document was not open when checking! Make sure to have the Master document open and active before hitting the 'export' button.")
