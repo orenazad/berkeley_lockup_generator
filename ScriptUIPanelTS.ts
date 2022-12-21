@@ -386,20 +386,23 @@ function createDialog() {
     let csvPath = "";
     let csvFile: File;
     selectCSVInputIconButton.onClick = function() {
+        // Use CSV file test so that if we click the cancel dialog when we already have a good file, we don't overwrite the good file.
+        let csvFileTest: File;
         const os = $.os.toLowerCase().indexOf('mac') >= 0 ? "MAC": "WINDOWS";
         if (os == 'MAC') {
-            csvFile = File.openDialog('Select a CSV File', function (f) { return (f instanceof Folder) || f.name.match(/\.csv$/i);} );
+            csvFileTest = File.openDialog('Select a CSV File', function (f) { return (f instanceof Folder) || f.name.match(/\.csv$/i);} );
         } else {
-            csvFile = File.openDialog('Select a CSV File','comma-separated-values(*.csv):*.csv;');
+            csvFileTest = File.openDialog('Select a CSV File','comma-separated-values(*.csv):*.csv;');
         }
-        const csvFileSuccess = csvFile.open('r');
+        const csvFileSuccess = csvFileTest.open('r');
         if (!csvFileSuccess) {
           alert("Could not open CSV file correctly!")
           return;
         }
-        csvFile.close()
-        csvInputPathText.text = File.decode(csvFile.name);
-        csvPath = File.decode(csvFile.name);
+        csvFileTest.close()
+        csvFile = csvFileTest;
+        csvInputPathText.text = File.decode(csvFileTest.name);
+        csvPath = File.decode(csvFileTest.name);
     }
 
     // TODO: Output Path Button Here:
@@ -477,9 +480,33 @@ function createDialog() {
             // We only need a single value from the CSV list.
             if (singleLineRadioButton.value) {
                 const lineNumber: number = parseInt(singleLineText.text) - 2;
-                const csvLine = csvJSON[lineNumber]
-                doCSVFullEdit(doc, layers, options, colorSchemes, csvLine)
+                if (lineNumber >= csvJSON.length || lineNumber < 0) {
+                    alert('The entered line number is not valid!');
+                }
+                const csvLine = csvJSON[lineNumber];
+                doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+            } else if (customRangeRadioButton.value) {
+                const startNumber: number = parseInt(startRangeText.text) - 2;
+                const endNumber: number = parseInt(endRangeText.text) - 2;
+                if (startNumber < 0) {
+                    alert('The entered start number is not valid!');
+                }
+                if (endNumber >= csvJSON.length) {
+                    alert('The entered end number is not valid!');
+                }
+                for (let i = startNumber; i <= endNumber; i++) {
+                    const csvLine = csvJSON[i];
+                    doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+                }
+            } else if (fullCSVButton.value) {
+                for (let i = 0; i < csvJSON.length; i++) {
+                    const csvLine = csvJSON[i];
+                    doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+                }
+            } else {
+                alert('Error! None of the radio buttons were selected, but somehow the CSV button was selected. Please report this.')
             }
+            
         }
     }
 

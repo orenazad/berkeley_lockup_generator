@@ -363,7 +363,8 @@ function calculateArtboardRange(options: {}) {
 //     }
 // }
 
-// Needs testing
+// TODO: Needs testing
+// TODO: Need a delete file if already exist.
 function createFolderPathIfNotExist(path) {
     let f = new Folder(path);
     if (!f.exists) {
