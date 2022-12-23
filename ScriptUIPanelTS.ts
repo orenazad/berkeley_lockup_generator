@@ -405,6 +405,22 @@ function createDialog() {
         csvPath = File.decode(csvFileTest.name);
     }
 
+    // TODO: Make this automatic?
+    let outputPath = "";
+    let outputFolder: Folder;
+    selectOututPathIconButton.onClick = function() {
+        let outputFolderTest: Folder;
+        outputFolderTest = Folder.selectDialog ("Select the output folder.");
+        if(outputFolderTest != null){
+          if (!(outputFolderTest instanceof Folder)) {
+            alert("The selection does not appear to be a folder!")
+          }
+        outputFolder = outputFolderTest;
+        outputPathText.text = Folder.decode(outputFolderTest.absoluteURI)
+        outputPath = Folder.decode(outputFolderTest.absoluteURI)
+      }
+    }
+
     // TODO: Output Path Button Here:
 
     exportButton.onClick = function() {
@@ -423,10 +439,14 @@ function createDialog() {
         }
 
         // 2. Check to make sure the Output Folder is correct.
-        // TODO:
+        if (outputPath == "") {
+            alert("Error: No output path selected or invalid output path.")
+            return;
+        }
 
         // 3. Generate the options dictionary.
         let options = {};
+        options['outputFolder'] = outputFolder;
         options['exportPNG'] = pngCheckbox.value;
         options['exportEPS'] = epsCheckbox.value;
 

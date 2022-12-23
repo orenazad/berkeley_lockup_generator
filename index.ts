@@ -119,12 +119,17 @@ function editUCLayers(layers: Layers, color: Color) {
     const compoundPaths = layer.compoundPathItems;
     layer.locked = false;
 
-    for (let i = 0; i < compoundPaths.length; i++) {
-        compoundPaths[i].pathItems[0].fillColor = color;
-    }
-    const paths = layer.pathItems;
-    for (let i = 0; i < paths.length; i++) {
-        paths[i].fillColor = color;
+    try {
+        for (let i = 0; i < compoundPaths.length; i++) {
+            compoundPaths[i].pathItems[0].fillColor = color;
+        }
+        const paths = layer.pathItems;
+        for (let i = 0; i < paths.length; i++) {
+            paths[i].fillColor = color;
+        }
+    } catch (e) {
+        alert("Error 8705 caught. This is likely because you may have 'canceled' an operation, leaving the document in a bad state. Although I've worked around it, this initially happened when Illustrator attempted to overwrite a document, and you choose to cancel that operation. Please re-open or re-download the document to fix this, and report to Oren if it happens again.");
+        throw e;
     }
 
     layer.locked = true;
@@ -309,18 +314,18 @@ function openMasterDocument(only_check: boolean) {
     return false;
 }
 
-
-
 //TODO: This should not have a hard set filepath.
 function exportArtboardsAsEPS(doc: Document, options: {}) {
-    let newEPSFile: File = new File('/Users/orenazad/Desktop/PA-work/test');
+    let newEPSFile: File = new File('/Users/orenazad/Desktop/PA-work/output/test/tt');
     let saveOptions: EPSSaveOptions = new EPSSaveOptions();
     saveOptions.saveMultipleArtboards = true;
     saveOptions.artboardRange = calculateArtboardRange(options);
-
-    doc.saveAs(newEPSFile, saveOptions);
-    // TODO: I think this is fine, reevaluate though.
-    // Should rename file here, according to which artboards were exported. OR, maybe if it exports artboard names?
+    // Exception 8700 thrown here if we try to overwrite a file, and the user cancels. This will mess up the whole script.
+    // We can prevent this by catching and continuing.
+    try {
+        doc.saveAs(newEPSFile, saveOptions);
+    } catch (error) {
+    }
 }
 
 function calculateArtboardRange(options: {}) {
