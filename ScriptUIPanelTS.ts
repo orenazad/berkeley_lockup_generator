@@ -446,7 +446,7 @@ function createDialog() {
 
         // 3. Generate the options dictionary.
         let options = {};
-        options['outputFolder'] = outputFolder;
+        options['outputFolder'] = outputPath;
         options['exportPNG'] = pngCheckbox.value;
         options['exportEPS'] = epsCheckbox.value;
 
@@ -469,17 +469,17 @@ function createDialog() {
         options['useDoubleUnitLine'] = true;
         options['useEndorserLine'] = true;
 
-        // 4. Create the Color Schemes. TODO: This should maybe switch between RGB and CMYK.
+        // 4. Create the Color Schemes. TODO: This should maybe switch between RGB and CMYK. # Default should be RGB
         const BerkeleyBlue = generateColors('CMYK', 'blue')
         const CaliforniaGold= generateColors('CMYK', 'gold')
         const White = generateColors('CMYK', 'white')
     
         const colorSchemes = [
             // Text Color, WordMark Color, Background Color
-            [BerkeleyBlue, BerkeleyBlue,   White],
-            [White,        White,          BerkeleyBlue],
-            [White,        CaliforniaGold, BerkeleyBlue],
-            [BerkeleyBlue, BerkeleyBlue,   CaliforniaGold],
+            [BerkeleyBlue, BerkeleyBlue,   White,          'blue_on_white'],
+            [White,        White,          BerkeleyBlue,   'white_on_blue'],
+            [White,        CaliforniaGold, BerkeleyBlue,   'white_and_gold_on_blue'],
+            [BerkeleyBlue, BerkeleyBlue,   CaliforniaGold, 'blue_on_gold'],
         ]
 
         // 5. Grab the layers.

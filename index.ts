@@ -191,9 +191,12 @@ function doFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Co
         editTextFramesText(endorserTextFrames, endorserLine);
     }
 
+    options['unitName'] = options['useDoubleUnitLine'] ? unitNames.join('_') : unitNames[0];
     // 3. Do color operations and save the file for every color in the chosen color scheme.
     for (let i = 0; i < colorSchemes.length; i++) {
-        doColorsAndSave(doc, layers, options, colorSchemes[i]);
+        const colorScheme = colorSchemes[i]
+        options['colorSchemeName'] = colorScheme[3]
+        doColorsAndSave(doc, layers, options, colorScheme);
     }
 }
 
@@ -239,7 +242,7 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
     getLayerByName(layers, 'UC Lines').visible = true
     getLayerByName(layers, 'Trademark Symbols').visible = true
     if (options['exportPNG']) {
-        // TODO: Export as PNG
+        exportArtboardsAsPNG(doc, options);
     }
 
 
@@ -255,23 +258,36 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
 
 }
 
-//TODO: use this
-function getArtboardOutputFilepath(index) {
+// Create the artboard output filepath.
+function getArtboardOutputFilepath(doc: Document, options: {}, index: number, isEPS: boolean) {
     // This is the dictionary from artboard numbers to output paths. 
     // Edit here if the artboards change order, you would like to change output paths, or you add a new artboard.
-    // TODO: Either have a failsafe / default option, or alert when there isn't a pair found in here.
-    // TODO: This should be wrapped in a function.
-    // Should maybe use artboard names instead of numbers?
     const outputPathDict = {
-        1: 'one',
-        2: 'two',
-        3: 'three',
-        4: 'for',
-        5: 'five',
-        6: 'six',
-        7: 'seven',
+        0: 'horizontal',
+        1: 'horizontal',
+        2: 'horizontal',
+        3: 'horizontal',
+        4: 'horizontal',
+        5: 'vertical',
+        6: 'vertical',
     };
-    return outputPathDict[index]
+    const outputFolder = options['outputFolder']
+    const unitName = options['unitName'];
+    const orientation = outputPathDict[index];
+    const colorSchemeName = options['colorSchemeName'];
+    const artboardName = doc.artboards[index].name;
+
+    // Create folders.
+    createFolderPathIfNotExist(`${outputFolder}/${unitName}/${orientation}`)
+
+    if (isEPS) {
+        // Remove this- if the file already exists, this will be it's name.
+        const fileToRemove = new File(`${outputFolder}/${unitName}/${orientation}/${colorSchemeName}_${artboardName}.eps`)
+        fileToRemove.remove();
+        return `${outputFolder}/${unitName}/${orientation}/${colorSchemeName}`
+    } else {
+        return `${outputFolder}/${unitName}/${orientation}/${colorSchemeName}_${artboardName}`
+    }
 }
 
 function openMasterDocument(only_check: boolean) {
@@ -314,62 +330,80 @@ function openMasterDocument(only_check: boolean) {
     return false;
 }
 
-//TODO: This should not have a hard set filepath.
-function exportArtboardsAsEPS(doc: Document, options: {}) {
-    let newEPSFile: File = new File('/Users/orenazad/Desktop/PA-work/output/test/tt');
-    let saveOptions: EPSSaveOptions = new EPSSaveOptions();
-    saveOptions.saveMultipleArtboards = true;
-    saveOptions.artboardRange = calculateArtboardRange(options);
-    // Exception 8700 thrown here if we try to overwrite a file, and the user cancels. This will mess up the whole script.
-    // We can prevent this by catching and continuing.
-    try {
-        doc.saveAs(newEPSFile, saveOptions);
-    } catch (error) {
-    }
-}
-
 function calculateArtboardRange(options: {}) {
     if (options['useDoubleUnitLine']) {
         if (options['useEndorserLine']) {
-            return '3,4,5,7'
+            return [2,3,4,6]
         }
-        return '4,5,7'
+        return [3,4,6]
     }
     if (options['useEndorserLine']) {
-        return '1,2,6'
+        return [0, 1, 5]
     }
-    return  '2,6'
+    return  [1, 5]
 }
 
-// // Need to have some sort of global variable or something here to determine whether or not to export Double-lines.
-// function exportArtboardsAsPNG(doc: Document, colorVariation) {
+//TODO: This should not have a hard set filepath.
+function exportArtboardsAsEPS(doc: Document, options: {}) {
+    // List of artboards (by index) that we want to export.
+    const artboardExportList: number[] = calculateArtboardRange(options);
 
-//     var fleName = doc.name.slice(0, 9);//Get the file code number not the full name;
-//     var numArtboards = doc.artboards.length;//returns the number of artboards in the document
-//     var filePath = (doc.fullName.parent.fsName).toString().replace(/\\/g, '/')
+    // EPS Save Options
+    let saveOptions: EPSSaveOptions = new EPSSaveOptions();
+    saveOptions.saveMultipleArtboards = true;
+    saveOptions.embedAllFonts = true;
+    saveOptions.includeDocumentThumbnails = true;
+    
+    // Iterate through every artboard we need to export
+    for (let i = 0; i < artboardExportList.length; i++) {
+        const artboardIndex = artboardExportList[i]
 
-//     $.writeln("fleName= ", fleName)
-//     $.writeln("numArtboards= ", numArtboards)
-//     $.writeln("filePath= ", filePath);
+        // Get the output file path.
+        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, true) + '.eps';
+        const newEPSFile: File = new File(fullOutputPath);
 
-//     var options = new ExportOptionsPNG24();
 
-//     for (var i = 0; i < numArtboards; i++) {
-//         doc.artboards.setActiveArtboardIndex(i);
+        // This uses 1-... as the index.
+        saveOptions.artboardRange = (artboardIndex + 1).toString();
 
-//         options.artBoardClipping = true;
+        // Exception 8700 thrown here if we try to overwrite a file, and the user cancels. This will mess up the whole script.
+        // We can prevent this by catching and continuing.
+        try {
+            doc.saveAs(newEPSFile, saveOptions);
+        } catch (error) {
+        }
+    }
+}
 
-//         var artboardName = doc.artboards[i].name;
-//         $.writeln("artboardName= ", artboardName);
-//         var fullCompleteFilePath = filePath + "/" + colorVariation + "/" + fleName + " " + artboardName + ".png"
-//         var destFile = new File(fullCompleteFilePath);
-//         $.writeln("destFile= ", destFile);
-//         doc.exportFile(destFile, ExportType.PNG24, options);
-//     }
-// }
+function exportArtboardsAsPNG(doc: Document, options: {}) {
 
-// TODO: Needs testing
-// TODO: Need a delete file if already exist.
+    // List of artboards (by index) that we want to export.
+    const artboardExportList: number[] = calculateArtboardRange(options);
+    let exportOptions = new ExportOptionsPNG24();
+
+    exportOptions.artBoardClipping = true;
+    exportOptions.transparency = false;
+
+    // Iterate through every artboard we need to export
+    for (let i = 0; i < artboardExportList.length; i++) {
+
+        // Get the index of the artboard and make it active.
+        const artboardIndex = artboardExportList[i]
+        doc.artboards.setActiveArtboardIndex(artboardIndex)
+
+        // Get the output file path.
+        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, false) + '.png';
+        const newPNGFile: File = new File(fullOutputPath);
+
+        try {
+            doc.exportFile(newPNGFile, ExportType.PNG24, exportOptions);
+        } catch (error) {
+
+        }
+    }
+}
+
+
 function createFolderPathIfNotExist(path) {
     let f = new Folder(path);
     if (!f.exists) {
