@@ -432,9 +432,9 @@ function generateColors(colorSpace, colorName: string) {
     };
     // TODO: Fill in RGB Values
     const colorDictRGB = {
-        'blue' : [],
-        'gold' : [],
-        'white': [],
+        'blue' : [  0,  50,  98],
+        'gold' : [253, 181,  21],
+        'white': [255, 255, 255],
     };
 
     if (colorSpace == 'CMYK') {

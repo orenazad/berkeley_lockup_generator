@@ -72,10 +72,11 @@ function createDialog() {
 
     var cmykCheckbox = colorSpacePanel.add("checkbox", undefined, undefined, {name: "cmykCheckbox"}); 
         cmykCheckbox.text = "CMYK"; 
-        cmykCheckbox.value = true; 
+        cmykCheckbox.value = false; 
 
     var rgbCheckbox = colorSpacePanel.add("checkbox", undefined, undefined, {name: "rgbCheckbox"}); 
-        rgbCheckbox.text = "RGB"; 
+        rgbCheckbox.text = "RGB";
+        rgbCheckbox.value = true; 
 
     // INPUTPANEL
     // ==========
