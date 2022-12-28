@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx tsc",
-    "copy-ai": "cp Lockup-Master-Document.ai /build",
-    "copy-csvjs": "cp src/CSV.js /build",
+    "copy-ai": "cp Lockup-Master-Document.ai /dist",
+    "copy-csvjs": "cp src/CSV.js /dist",
     "build": "npm run copy-ai && npm run copy-csvjs && npm run compile"
   },
   "repository": {
