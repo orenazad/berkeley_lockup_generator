@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "compile": "npx tsc",
+    "copy-ai": "cp Lockup-Master-Document.ai /build",
+    "copy-csvjs": "cp src/CSV.js /build",
+    "build": "npm run copy-ai && npm run copy-csvjs && npm run compile"
   },
   "repository": {
     "type": "git",

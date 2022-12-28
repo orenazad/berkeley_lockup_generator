@@ -5,6 +5,8 @@
       "noLib": true,
       "typeRoots": [],
       "removeComments": true,
+      "rootDir": "src",
+      "outDir": "build",
     },
     "exclude": ["node_modules"]
   }
