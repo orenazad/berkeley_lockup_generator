@@ -93,7 +93,7 @@ function editUnitColor(layers: Layers, color: Color) {
     let textFramesDouble = layer.textFrames;
 
     // Unlock, edit the fill color, and lock
-    layer.locked = false; 
+    layer.locked = false;
     editTextFramesFillColor(textFramesDouble, color);
     layer.locked = true;
 
@@ -104,7 +104,7 @@ function editWordmarks(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Berkeley Wordmarks');
     const groupItems = layer.groupItems;
 
-    layer.locked = false; 
+    layer.locked = false;
     for (let i = 0; i < groupItems.length; i++) {
         const compoundPaths = groupItems[i].compoundPathItems;
         for (let j = 0; j < compoundPaths.length; j++) {
@@ -138,7 +138,7 @@ function editUCLayers(layers: Layers, color: Color) {
 function editTMLayers(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Trademark Symbols');
     const groupItems = layer.groupItems;
-    layer.locked = false; 
+    layer.locked = false;
 
     for (let i = 0; i < groupItems.length; i++) {
         const compoundPaths = groupItems[i].compoundPathItems;
@@ -146,7 +146,7 @@ function editTMLayers(layers: Layers, color: Color) {
             compoundPaths[j].pathItems[0].fillColor = color;
         }
     }
-    
+
     layer.locked = true;
 }
 
@@ -154,7 +154,7 @@ function editBackgroundColors(layers: Layers, color: Color) {
     const layer = getLayerByName(layers, 'Backgrounds');
     const backgrounds = layer.pathItems;
 
-    layer.locked = false; 
+    layer.locked = false;
     for (let i = 0; i < backgrounds.length; i++) {
         backgrounds[i].fillColor = color;
     }
@@ -171,15 +171,19 @@ function doCSVFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes:
 
 function doFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Color[][], unitNames: string[], endorserLine: string) {
 
-    if (typeof unitNames[0] === undefined ||  unitNames[0] == 'Unit Name Line 1' || unitNames[0] == "") {
+    if (typeof unitNames[0] === undefined || unitNames[0] == 'Unit Name Line 1' || unitNames[0] == "") {
         alert('Unit Name Line 1 has not been filled out.');
         return;
     }
     if (typeof unitNames[1] === undefined || unitNames[1] == 'Unit Name Line 2' || unitNames[1] == '') {
         options['useDoubleUnitLine'] = false;
-     }
+    } else {
+        options['useDoubleUnitLine'] = true;
+    }
     if (typeof endorserLine === undefined || endorserLine == 'Endorser Line' || endorserLine == '') {
         options['useEndorserLine'] = false;
+    } else {
+        options['useEndorserLine'] = true;
     }
 
     // 1. Edit the TEXT only for the unit names
@@ -241,10 +245,10 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
     // 10: Enable the UC Text and Trademark then save as PNG file
     getLayerByName(layers, 'UC Lines').visible = true
     getLayerByName(layers, 'Trademark Symbols').visible = true
-    if (options['exportPNG']) {
+    // PNG does not support CMYK, so we won't export it.
+    if (options['exportPNG'] && options['colorSpace'] != 'CMYK') {
         exportArtboardsAsPNG(doc, options);
     }
-
 
     // 11. Delete the Group Items (the traced text)
     deleteGroupItems(unitTextSingleGroup)
@@ -273,28 +277,29 @@ function getArtboardOutputFilepath(doc: Document, options: {}, index: number, is
     };
     const outputFolder = options['outputFolder']
     const unitName = options['unitName'];
+    const colorSpace = options['colorSpace'];
     const orientation = outputPathDict[index];
     const colorSchemeName = options['colorSchemeName'];
     const artboardName = doc.artboards[index].name;
 
     // Create folders.
-    createFolderPathIfNotExist(`${outputFolder}/${unitName}/${orientation}`)
+    createFolderPathIfNotExist(`${outputFolder}/${unitName}/${colorSpace}/${orientation}`)
 
     if (isEPS) {
         // Remove this- if the file already exists, this will be it's name.
-        const fileToRemove = new File(`${outputFolder}/${unitName}/${orientation}/${colorSchemeName}_${artboardName}.eps`)
+        const fileToRemove = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.eps`)
         fileToRemove.remove();
-        return `${outputFolder}/${unitName}/${orientation}/${colorSchemeName}`
+        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`
     } else {
-        return `${outputFolder}/${unitName}/${orientation}/${colorSchemeName}_${artboardName}`
+        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}`
     }
 }
 
 function openMasterDocument(only_check: boolean) {
     // This script should be right next to the master-AI document.
-    // TODO: Double check that this is in CMYK Color. Or RGB, Whatever they want.
     // TODO: This should be a relative path.
     // TODO: This should be versioned.
+    // TODO: Make this open and check for a copy.
     const masterDocumentFileName = 'Lockup-Master-Document.ai';
     const masterDocumentFilePath = '/Users/orenazad/Desktop/PA-work/' + masterDocumentFileName;
 
@@ -333,14 +338,14 @@ function openMasterDocument(only_check: boolean) {
 function calculateArtboardRange(options: {}) {
     if (options['useDoubleUnitLine']) {
         if (options['useEndorserLine']) {
-            return [2,3,4,6]
+            return [2, 3, 4, 6]
         }
-        return [3,4,6]
+        return [3, 4, 6]
     }
     if (options['useEndorserLine']) {
         return [0, 1, 5]
     }
-    return  [1, 5]
+    return [1, 5]
 }
 
 //TODO: This should not have a hard set filepath.
@@ -353,7 +358,7 @@ function exportArtboardsAsEPS(doc: Document, options: {}) {
     saveOptions.saveMultipleArtboards = true;
     saveOptions.embedAllFonts = true;
     saveOptions.includeDocumentThumbnails = true;
-    
+
     // Iterate through every artboard we need to export
     for (let i = 0; i < artboardExportList.length; i++) {
         const artboardIndex = artboardExportList[i]
@@ -415,8 +420,8 @@ function createFolderPathIfNotExist(path) {
     return f;
 }
 
-    // Sort by color, not by size. We pass in the folder (with the named color) to each function
-    // organization_name/color/{png/eps}{all the sizes will be here}
+// Sort by color, not by size. We pass in the folder (with the named color) to each function
+// organization_name/color/{png/eps}{all the sizes will be here}
 
 
 ////////////////
@@ -426,14 +431,14 @@ function createFolderPathIfNotExist(path) {
 
 function generateColors(colorSpace, colorName: string) {
     const colorDictCMYK = {
-        'blue' : [100, 71,  10, 47],
-        'gold' : [  0, 32, 100,  0],
-        'white': [  0,  0,   0,  0],
+        'blue': [100, 71, 10, 47],
+        'gold': [0, 32, 100, 0],
+        'white': [0, 0, 0, 0],
     };
     // TODO: Fill in RGB Values
     const colorDictRGB = {
-        'blue' : [  0,  50,  98],
-        'gold' : [253, 181,  21],
+        'blue': [0, 50, 98],
+        'gold': [253, 181, 21],
         'white': [255, 255, 255],
     };
 
