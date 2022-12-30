@@ -1,4 +1,4 @@
-/// <reference types="../ts-types/"/>
+/// <reference types="./ts-types/"/>
 
 function getLayerByName(layers: Layers, name: string) {
     for (let i = 0; i < layers.length; i++) {
@@ -296,12 +296,14 @@ function getArtboardOutputFilepath(doc: Document, options: {}, index: number, is
 }
 
 function openMasterDocument(only_check: boolean) {
+
+
     // This script should be right next to the master-AI document.
-    // TODO: This should be a relative path.
-    // TODO: This should be versioned.
+    // TODO: Ideally this is versioned.
     // TODO: Make this open and check for a copy.
     const masterDocumentFileName = 'Lockup-Master-Document.ai';
-    const masterDocumentFilePath = '/Users/orenazad/Desktop/PA-work/' + masterDocumentFileName;
+    const scriptFolder: Folder = new File($.fileName).parent;
+    const masterDocumentFilePath = Folder.decode(scriptFolder.absoluteURI) + `/${masterDocumentFileName}`;
 
     // Only check that the master document is open and active, don't open it automatically.
     if (only_check) {
@@ -348,7 +350,6 @@ function calculateArtboardRange(options: {}) {
     return [1, 5]
 }
 
-//TODO: This should not have a hard set filepath.
 function exportArtboardsAsEPS(doc: Document, options: {}) {
     // List of artboards (by index) that we want to export.
     const artboardExportList: number[] = calculateArtboardRange(options);
@@ -435,7 +436,6 @@ function generateColors(colorSpace, colorName: string) {
         'gold': [0, 32, 100, 0],
         'white': [0, 0, 0, 0],
     };
-    // TODO: Fill in RGB Values
     const colorDictRGB = {
         'blue': [0, 50, 98],
         'gold': [253, 181, 21],

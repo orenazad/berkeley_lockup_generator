@@ -6,7 +6,7 @@
       "typeRoots": [],
       "removeComments": true,
       "rootDir": "src",
-      "outDir": "dist",
+      "outDir": "tmp",
     },
     "exclude": ["node_modules"]
   }

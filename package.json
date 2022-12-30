@@ -5,9 +5,14 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx tsc",
-    "copy-ai": "cp Lockup-Master-Document.ai /dist",
-    "copy-csvjs": "cp src/CSV.js /dist",
-    "build": "npm run copy-ai && npm run copy-csvjs && npm run compile"
+    "copy-ai": "mkdir ./dist && cp ./src/Lockup-Master-Document.ai ./dist/Lockup-Master-Document.ai",
+    "copy-csvjs": "cp src/CSV.js ./tmp",
+    "prepend-includes": "node prepend.js",
+    "bundle-jsx": "npx exsbundlr --input tmp/ScriptUIPanel.js -o dist/Berkeley_Lockup_Panel.js",
+    "build": "npm run compile && npm run copy-csvjs && npm run prepend-includes && npm run copy-ai && npm run bundle-jsx && npm run clean-temp",
+    "clean-temp": "rm -r ./tmp",
+    "clean-dist": "rm -r ./dist",
+    "clean": "npm run clean-dist && npm run clean-temp"
   },
   "repository": {
     "type": "git",
@@ -21,6 +26,7 @@
   },
   "homepage": "https://github.com/orenazad/PA-work#readme",
   "devDependencies": {
+    "extendscript-bundlr": "^0.4.0",
     "typescript": "^4.9.4"
   }
 }
