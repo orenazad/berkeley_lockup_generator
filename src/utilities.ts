@@ -297,13 +297,15 @@ function getArtboardOutputFilepath(doc: Document, options: {}, index: number, is
 
 function openMasterDocument(only_check: boolean) {
 
+    // Filenames
+    const originalMasterDocumentFileName = 'Lockup-Master-Document.ai'
+    const masterDocumentFileName = 'Lockup-Master-Document-copy.ai';
 
-    // This script should be right next to the master-AI document.
-    // TODO: Ideally this is versioned.
-    // TODO: Make this open and check for a copy.
-    const masterDocumentFileName = 'Lockup-Master-Document.ai';
+    // The folder the script (and master document) are in.
     const scriptFolder: Folder = new File($.fileName).parent;
+
     const masterDocumentFilePath = Folder.decode(scriptFolder.absoluteURI) + `/${masterDocumentFileName}`;
+    const originalMasterDocumentFilePath = Folder.decode(scriptFolder.absoluteURI) + `/${originalMasterDocumentFileName}`;
 
     // Only check that the master document is open and active, don't open it automatically.
     if (only_check) {
@@ -314,11 +316,28 @@ function openMasterDocument(only_check: boolean) {
             return false;
         }
     }
+    if (app.documents.length > 0) {
+        if (app.activeDocument.name == masterDocumentFileName) {
+            alert('The lockup document is already open and active!');
+            return app.activeDocument;
+        }
+    }
     // Either there are no documents open, or the master document is not opened.
     if (app.documents.length == 0 || !app.getIsFileOpen(masterDocumentFilePath)) {
-        const masterDocumentFile = new File(masterDocumentFilePath)
-        if (!masterDocumentFile.exists) {
-            alert('Error: Could not open lockup document file at path:' + masterDocumentFilePath)
+        // Make a copy of the master document and open that.
+        const originalMasterDocumentFile = new File(originalMasterDocumentFilePath)
+        if (!originalMasterDocumentFile.exists) {
+            alert('Error: Could not open the original lockup document file at path:' + masterDocumentFilePath)
+            return false;
+        }
+        let success = originalMasterDocumentFile.copy(masterDocumentFilePath)
+        if (!success) {
+            alert('Error: Could not make a copy of the original lockup document file at path:' + originalMasterDocumentFilePath);
+            return false;
+        }
+        const masterDocumentFile = new File(masterDocumentFilePath);
+        if (!originalMasterDocumentFile.exists) {
+            alert('Error: Could not open the copied lockup document file at path:' + masterDocumentFilePath)
             return false;
         }
         app.open(masterDocumentFile);
