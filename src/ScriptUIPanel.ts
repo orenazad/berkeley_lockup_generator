@@ -53,10 +53,13 @@ function createDialog() {
     pdfCheckbox.text = "Export PDF";
     pdfCheckbox.value = true;
 
-    // TODO: Add option to hide PNG details.
     var hideCheckbox = exportSettingsPanel.add("checkbox", undefined, undefined, { name: "hideCheckbox" });
     hideCheckbox.text = "Hide Logo Option and TM on EPS/PDF";
     hideCheckbox.value = true;
+
+    var hidePNGCheckbox = exportSettingsPanel.add("checkbox", undefined, undefined, { name: "hidePNGCheckbox" });
+    hidePNGCheckbox.text = "Remove Logo Option and TM on PNG";
+    hidePNGCheckbox.value = true;
 
     // COLORSPACEPANEL
     // ===============
@@ -437,8 +440,8 @@ function createDialog() {
             }
         }
 
-        if (pngCheckbox.value == false && epsCheckbox.value == false) {
-            alert('Either the PNG or EPS export option should be checked.')
+        if (pngCheckbox.value == false && epsCheckbox.value == false && pdfCheckbox.value == false) {
+            alert('Either the PNG, EPS or PDF export option should be checked.')
             return;
         }
 
@@ -501,6 +504,7 @@ function createDialog() {
             options['exportPDF'] = pdfCheckbox.value;
 
             options['hideDetailsEPSandPDF'] = hideCheckbox.value;
+            options['hideDetailsPNG'] = hidePNGCheckbox.value;
 
             // These will be set to false later, if needed.
             options['useDoubleUnitLine'] = true;

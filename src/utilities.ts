@@ -250,8 +250,8 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
 
     // 10: Enable the UC Text and Trademark then save as PNG file
     // NOTE: As of now, we are exporting the PNG without the UC Line or Trademark, so these will be turned off here and turned on immediately after.
-    getLayerByName(layers, 'UC Lines').visible = false;
-    getLayerByName(layers, 'Trademark Symbols').visible = false;
+    getLayerByName(layers, 'UC Lines').visible = !(options['hideDetailsPNG'])
+    getLayerByName(layers, 'Trademark Symbols').visible = !(options['hideDetailsPNG']);
     // PNG does not support CMYK, so we won't export it when we are in a CMYK colorspace..
     if (options['exportPNG'] && options['colorSpace'] != 'CMYK') {
         exportArtboardsAsPNG(doc, options);
