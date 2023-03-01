@@ -522,7 +522,7 @@ function createDialog() {
                 // Text Color, WordMark Color, Background Color
                 [BerkeleyBlue, BerkeleyBlue, White, 'blue_on_white'],
                 [White, White, BerkeleyBlue, 'white_on_blue'],
-                [White, CaliforniaGold, BerkeleyBlue, 'white_and_gold_on_blue'],
+                [White, CaliforniaGold, BerkeleyBlue, 'three_color'],
                 [BerkeleyBlue, BerkeleyBlue, CaliforniaGold, 'blue_on_gold'],
             ]
 

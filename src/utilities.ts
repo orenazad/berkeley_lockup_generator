@@ -245,7 +245,7 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
     if (options['exportPDF']) {
         getLayerByName(layers, 'UC Lines').visible = !(options['hideDetailsEPSandPDF'])
         getLayerByName(layers, 'Trademark Symbols').visible = !(options['hideDetailsEPSandPDF']);
-        exportArtboardsAsPDF(doc, options) 
+        exportArtboardsAsPDF(doc, options)
     }
 
     // 10: Enable the UC Text and Trademark then save as PNG file
@@ -278,37 +278,49 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
 function getArtboardOutputFilepath(doc: Document, options: {}, index: number, isEPS: boolean, isPDF: boolean) {
     // This is the dictionary from artboard numbers to output paths. 
     // Edit here if the artboards change order, you would like to change output paths, or you add a new artboard.
+    const horizontalString = 'Horizontal Lockups (default)';
+    const verticalString = 'Vertical';
     const outputPathDict = {
-        0: 'horizontal',
-        1: 'horizontal',
-        2: 'horizontal',
-        3: 'horizontal',
-        4: 'horizontal',
-        5: 'vertical',
-        6: 'vertical',
+        0: horizontalString,
+        1: horizontalString,
+        2: horizontalString,
+        3: horizontalString,
+        4: horizontalString,
+        5: verticalString,
+        6: verticalString,
     };
     const outputFolder = options['outputFolder']
     const unitName = options['unitName'];
-    const colorSpace = options['colorSpace'];
+    let colorSpace: String;
+    if (options['colorSpace'] == 'RGB') {
+        colorSpace = 'Digital (RGB)';
+    } else if (options['colorSpace'] == 'CMYK') {
+        colorSpace = 'Print (CMYK)';
+    } else {
+        alert('Error: colorSpace was neither RGB or CMYK in getArtboardOutputFilepath(). Please report this error to the script maintainer.')
+        return;
+    }
     const orientation = outputPathDict[index];
     const colorSchemeName = options['colorSchemeName'];
     const artboardName = doc.artboards[index].name;
 
     // Create folders.
-    createFolderPathIfNotExist(`${outputFolder}/${unitName}/${colorSpace}/${orientation}`)
+    createFolderPathIfNotExist(`${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}`)
 
+    // We add the filename prefix before the artboard name since most file explorers organize by name as default. This keeps them in order in this case.
     if (isEPS) {
         // Remove this- if the file already exists, this will be it's name.
-        const fileToRemoveEPS = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.eps`);
+        const fileToRemoveEPS = new File(`${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}/eps_${artboardName}.eps`);
         fileToRemoveEPS.remove();
-        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`;
+        // The EPS file export function seems to automatically append the artboard name with an _, so we won't do so here.
+        return `${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}/eps`;
     } else if (isPDF) {
-        const fileToRemovePDF = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.pdf`);
+        const fileToRemovePDF = new File(`${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}/pdf_${artboardName}.pdf`);
         fileToRemovePDF.remove();
-        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`;
+        return `${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}/pdf_${artboardName}`;
     }
-     else {
-        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}`
+    else {
+        return `${outputFolder}/${unitName}/${orientation}/${colorSpace}/${colorSchemeName}/png_${artboardName}`;
     }
 }
 
@@ -386,6 +398,13 @@ function calculateArtboardRange(options: {}) {
     return [1, 5]
 }
 
+// NOTE: EPS exports are funky. Similiar issues as to PDF with things not being displayed correctly. 
+//I had to add several layers with nothing in them on Illustrator, which cover the whole artboard, in order to keep Preview happy.
+// The way it works, EPS files seem to keep the notion of 'hidden' layers by index. 
+// Depending on endorser lines and so forth, we may have several different layers in different outputs for the EPS file.
+// Because illustrator thinks the 'fourth' layer (or whatever it is) should be hidden, but the EPS file only ends up with 4 layers (so some where removed,
+// and now the background is the fourth layer instead of the 6th or wherever it typically is) the background will be hidden. 
+// So, I added dummy layers to make sure we have the same amount of layers in every export.
 function exportArtboardsAsEPS(doc: Document, options: {}) {
     // List of artboards (by index) that we want to export.
     const artboardExportList: number[] = calculateArtboardRange(options);
@@ -445,6 +464,9 @@ function exportArtboardsAsPNG(doc: Document, options: {}) {
     }
 }
 
+// NOTE: PDF exports are funky because they have hidden layers. For some reason, Apple's 'Preview' app does NOT handle these correctly in the slightest. 
+// I've managed to work around this by putting the two hidden layers at the very TOP of the illustrator file, which seems to make Preview happy. 
+// If they are not at the TOP of the illustrator file, Preview will hide the two top layers (AND the layers which are supposed to be hidden), which shouldn't be hidden, and when you open the PDF in Preview you only see the background.
 function exportArtboardsAsPDF(doc: Document, options: {}) {
     // List of artboards (by index) that we want to export.
     const artboardExportList: number[] = calculateArtboardRange(options);
