@@ -128,7 +128,7 @@ function editUCLayers(layers: Layers, color: Color) {
             paths[i].fillColor = color;
         }
     } catch (e) {
-        alert("Error 8705 caught. This is likely because you may have 'canceled' an operation, leaving the document in a bad state. Although I've worked around it, this initially happened when Illustrator attempted to overwrite a document, and you choose to cancel that operation. Please re-open or re-download the document to fix this, and report to Oren if it happens again.");
+        alert("Error 8705 caught. This is likely because you may have 'canceled' an operation, leaving the document in a bad state. Although I've worked around it, this initially happened when Illustrator attempted to overwrite a document, and you choose to cancel that operation. Please re-open or re-download the document to fix this, and report to the script maintainer if it happens again.");
         throw e;
     }
 
@@ -243,12 +243,18 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
     }
 
     // 10: Enable the UC Text and Trademark then save as PNG file
-    getLayerByName(layers, 'UC Lines').visible = true
-    getLayerByName(layers, 'Trademark Symbols').visible = true
+    // NOTE: As of now, we are exporting the PNG without the UC Line or Trademark, so these will be turned off here and turned on immediately after.
+    getLayerByName(layers, 'UC Lines').visible = false;
+    getLayerByName(layers, 'Trademark Symbols').visible = false;
     // PNG does not support CMYK, so we won't export it.
     if (options['exportPNG'] && options['colorSpace'] != 'CMYK') {
         exportArtboardsAsPNG(doc, options);
     }
+
+    // See above note.
+    getLayerByName(layers, 'UC Lines').visible = true;
+    getLayerByName(layers, 'Trademark Symbols').visible = true;
+
 
     // 11. Delete the Group Items (the traced text)
     deleteGroupItems(unitTextSingleGroup)
