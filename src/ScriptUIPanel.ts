@@ -420,6 +420,18 @@ function createDialog() {
             return;
         }
 
+        // The document will be opened up with RGB as it's colorspace. In order to change it, we need to use app.executeMenuCommand since doc.documentColorSpace is a read-only properly.
+        // However, the executeMenuCommand function doesn't always want to work. In order to make sure it's working, we will attempt to switch to the CMYK color space and then switch back. If we cannot switch back, we will ask the user to switch to CMYK for us. From there, we should be able to switch into RGB and CMYK without issues. 
+
+        app.executeMenuCommand("doc-color-cmyk");
+        if (doc.documentColorSpace != DocumentColorSpace.CMYK) {
+            alert("Was unable to automatically change the document color space to CMYK. This is an expected issue. Please manually set the document colorspace to CMYK as workaround and re-run this script. After changing the colorspace manually, the script will be able to switch between RGB and CMYK on its own as needed.");
+            return;
+        } else { // Successfully set to CMYK, set back to RGB.
+            app.executeMenuCommand("doc-color-rgb");
+        }
+
+
         if (pngCheckbox.value == false && epsCheckbox.value == false) {
             alert('Either the PNG or EPS export option should be checked.')
             return;
@@ -456,23 +468,24 @@ function createDialog() {
         for (let colorSpaceIndex = 0; colorSpaceIndex < colorSpaceList.length; colorSpaceIndex++) {
 
             const colorSpace = colorSpaceList[colorSpaceIndex];
-
+            
             // Set the colorspace for the document and double check.
             // doc.documentColorSpace = DocumentColorSpace.RGB doesn't work, as this is a read-only property.
             if (colorSpace == 'RGB') {
                 app.executeMenuCommand('doc-color-rgb');
+                //@ts-expect-error TSC sees that we check for CMYK above and expects us to only get here if we are in CMYK, therefore it doesn't understand why we need these if statements. Ofcourse, this is because we do actually change the colorspace by using executeMenuCommand, but the compiler doesn't know that!
                 if (doc.documentColorSpace != DocumentColorSpace.RGB) {
-                    alert("DocumentColorSpace is not as expected. Failed attempt to convert document to RGB colorspace. Please re-open the document, being careful not to save any changes.")
+                    alert("DocumentColorSpace is not as expected. Failed attempt to convert document to RGB colorspace. Please report this issue.")
                     return;
                 }
             } else if (colorSpace == 'CMYK') {
                 app.executeMenuCommand('doc-color-cmyk');
                 if (doc.documentColorSpace != DocumentColorSpace.CMYK) {
-                    alert("DocumentColorSpace is not as expected. Failed attempt to convert document to CMYK colorspace. Please re-open the document, being careful not to save any changes.")
+                    alert("DocumentColorSpace is not as expected. Failed attempt to convert document to CMYK colorspace. Please report this issue.")
                     return;
                 }
             } else {
-                alert('Critical Error! Color space was somehow neither RGB nor CMYK. Please report to Oren.');
+                alert('Critical Error! Color space was somehow neither RGB nor CMYK. Please report to script maintainer.');
                 return;
             }
 
@@ -512,7 +525,7 @@ function createDialog() {
                 doFullEdit(doc, layers, options, colorSchemes, [unitNameText1.text, unitNameText2.text], endorserLineText.text)
             }
             else if (csvRadioButton.value) {
-                //@ts-expect-error
+                //@ts-expect-error the CSV file is in JS, so TSC gets confused.
                 var csvJSON = new CSV.toJSON(csvFile, false, ',')
                 // csvJSON has [0] as the first row of actual data in the CSV file.
                 // That is to say, the CSV header (the titles for each row) is removed. 
