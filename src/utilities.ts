@@ -202,6 +202,27 @@ function doFullEdit(doc: Document, layers: Layers, options: {}, colorSchemes: Co
         options['colorSchemeName'] = colorScheme[3]
         doColorsAndSave(doc, layers, options, colorScheme);
     }
+
+    // Copy the file structure explainer over if it doesn't already exist.
+    // The folder the script (and file explainer) are in.
+    const scriptFolder: Folder = new File($.fileName).parent;
+
+    const fileStructureName = 'File-structure.pdf'
+    const fileStructureExplainerPath = `${Folder.decode(scriptFolder.absoluteURI)}/${fileStructureName}`;
+    const fileStructureExplainerCopy = new File(`${options['outputFolder']}/${options['unitName']}/${fileStructureName}`);
+    if (!fileStructureExplainerCopy.exists) {
+        const fileStructureExplainer = new File(fileStructureExplainerPath)
+        if (!fileStructureExplainer.exists) {
+            alert('Error: Could not open the original file structure explainer at path:' + fileStructureExplainerPath)
+            return false;
+        }
+        // @ts-expect-error  copy() also takes a file reference but TSC doesn't know that.
+        let success = fileStructureExplainer.copy(fileStructureExplainerCopy);
+        if (!success) {
+            alert('Error: Could not make a copy of the original file structure explainer at path:' + fileStructureExplainerCopy);
+            return false;
+        }
+    }
 }
 
 function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme: Color[]) {
@@ -279,7 +300,7 @@ function getArtboardOutputFilepath(doc: Document, options: {}, index: number, is
     // This is the dictionary from artboard numbers to output paths. 
     // Edit here if the artboards change order, you would like to change output paths, or you add a new artboard.
     const horizontalString = 'Horizontal Lockups (default)';
-    const verticalString = 'Vertical';
+    const verticalString = 'Vertical Lockups';
     const outputPathDict = {
         0: horizontalString,
         1: horizontalString,

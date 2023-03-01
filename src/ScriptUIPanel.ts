@@ -583,7 +583,6 @@ function createDialog() {
 
             }
         }
-
     }
 
     progressbar.value = 0;
