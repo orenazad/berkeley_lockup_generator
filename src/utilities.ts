@@ -237,16 +237,22 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
 
     // 9: Save as EPS File: For the EPS file, we have the option for hiding the UC Text and Trademark
     if (options['exportEPS']) {
-        getLayerByName(layers, 'UC Lines').visible = !(options['hideUCandTMonEPS'])
-        getLayerByName(layers, 'Trademark Symbols').visible = !(options['hideUCandTMonEPS']);
+        getLayerByName(layers, 'UC Lines').visible = !(options['hideDetailsEPSandPDF'])
+        getLayerByName(layers, 'Trademark Symbols').visible = !(options['hideDetailsEPSandPDF']);
         exportArtboardsAsEPS(doc, options)
+    }
+
+    if (options['exportPDF']) {
+        getLayerByName(layers, 'UC Lines').visible = !(options['hideDetailsEPSandPDF'])
+        getLayerByName(layers, 'Trademark Symbols').visible = !(options['hideDetailsEPSandPDF']);
+        exportArtboardsAsPDF(doc, options) 
     }
 
     // 10: Enable the UC Text and Trademark then save as PNG file
     // NOTE: As of now, we are exporting the PNG without the UC Line or Trademark, so these will be turned off here and turned on immediately after.
     getLayerByName(layers, 'UC Lines').visible = false;
     getLayerByName(layers, 'Trademark Symbols').visible = false;
-    // PNG does not support CMYK, so we won't export it.
+    // PNG does not support CMYK, so we won't export it when we are in a CMYK colorspace..
     if (options['exportPNG'] && options['colorSpace'] != 'CMYK') {
         exportArtboardsAsPNG(doc, options);
     }
@@ -269,7 +275,7 @@ function doColorsAndSave(doc: Document, layers: Layers, options: {}, colorScheme
 }
 
 // Create the artboard output filepath.
-function getArtboardOutputFilepath(doc: Document, options: {}, index: number, isEPS: boolean) {
+function getArtboardOutputFilepath(doc: Document, options: {}, index: number, isEPS: boolean, isPDF: boolean) {
     // This is the dictionary from artboard numbers to output paths. 
     // Edit here if the artboards change order, you would like to change output paths, or you add a new artboard.
     const outputPathDict = {
@@ -293,10 +299,15 @@ function getArtboardOutputFilepath(doc: Document, options: {}, index: number, is
 
     if (isEPS) {
         // Remove this- if the file already exists, this will be it's name.
-        const fileToRemove = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.eps`)
-        fileToRemove.remove();
-        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`
-    } else {
+        const fileToRemoveEPS = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.eps`);
+        fileToRemoveEPS.remove();
+        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`;
+    } else if (isPDF) {
+        const fileToRemovePDF = new File(`${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}.pdf`);
+        fileToRemovePDF.remove();
+        return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}`;
+    }
+     else {
         return `${outputFolder}/${unitName}/${colorSpace}/${orientation}/${colorSchemeName}_${artboardName}`
     }
 }
@@ -390,7 +401,7 @@ function exportArtboardsAsEPS(doc: Document, options: {}) {
         const artboardIndex = artboardExportList[i]
 
         // Get the output file path.
-        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, true) + '.eps';
+        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, true, false) + '.eps';
         const newEPSFile: File = new File(fullOutputPath);
 
 
@@ -423,13 +434,42 @@ function exportArtboardsAsPNG(doc: Document, options: {}) {
         doc.artboards.setActiveArtboardIndex(artboardIndex)
 
         // Get the output file path.
-        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, false) + '.png';
+        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, false, false) + '.png';
         const newPNGFile: File = new File(fullOutputPath);
 
         try {
             doc.exportFile(newPNGFile, ExportType.PNG24, exportOptions);
         } catch (error) {
 
+        }
+    }
+}
+
+function exportArtboardsAsPDF(doc: Document, options: {}) {
+    // List of artboards (by index) that we want to export.
+    const artboardExportList: number[] = calculateArtboardRange(options);
+
+    // PDF Save Options
+    let saveOptions: PDFSaveOptions = new PDFSaveOptions();
+    saveOptions.preserveEditability = false;
+
+    // Iterate through every artboard we need to export
+    for (let i = 0; i < artboardExportList.length; i++) {
+        const artboardIndex = artboardExportList[i]
+
+        // Get the output file path.
+        const fullOutputPath = getArtboardOutputFilepath(doc, options, artboardIndex, false, true) + '.pdf';
+        const newPDFFile: File = new File(fullOutputPath);
+
+
+        // This uses 1-... as the index.
+        saveOptions.artboardRange = (artboardIndex + 1).toString();
+
+        // Exception 8700 thrown here if we try to overwrite a file, and the user cancels. This will mess up the whole script.
+        // We can prevent this by catching and continuing.
+        try {
+            doc.saveAs(newPDFFile, saveOptions);
+        } catch (error) {
         }
     }
 }

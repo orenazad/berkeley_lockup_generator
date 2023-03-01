@@ -49,8 +49,13 @@ function createDialog() {
     epsCheckbox.text = "Export EPS";
     epsCheckbox.value = true;
 
+    var pdfCheckbox = exportSettingsPanel.add("checkbox", undefined, undefined, { name: "pdfCheckbox" });
+    pdfCheckbox.text = "Export PDF";
+    pdfCheckbox.value = true;
+
+    // TODO: Add option to hide PNG details.
     var hideCheckbox = exportSettingsPanel.add("checkbox", undefined, undefined, { name: "hideCheckbox" });
-    hideCheckbox.text = "Hide UC and TM on EPS";
+    hideCheckbox.text = "Hide Logo Option and TM on EPS/PDF";
     hideCheckbox.value = true;
 
     // COLORSPACEPANEL
@@ -493,8 +498,9 @@ function createDialog() {
             options['outputFolder'] = outputPath;
             options['exportPNG'] = pngCheckbox.value;
             options['exportEPS'] = epsCheckbox.value;
+            options['exportPDF'] = pdfCheckbox.value;
 
-            options['hideUCandTMonEPS'] = hideCheckbox.value;
+            options['hideDetailsEPSandPDF'] = hideCheckbox.value;
 
             // These will be set to false later, if needed.
             options['useDoubleUnitLine'] = true;
