@@ -62,7 +62,7 @@ The script has two options for input, manual ('Custom Input') or with a CSV file
 
 Custom input works great for one-off jobs that need to be done quickly or for any sort of testing. Simply enter the relevant information in the three text boxes present. You *only* need to enter information in the relevant text boxes. If untouched, the default text in the boxes will not be used.
 
-After filling out the relevant text boxes, select the *output path* as described below and select export! *The progress bar will not change when using the custom input option, but the script will alert you when finished.* TODO: Set an alert for custom inputs, single line, and in general.
+After filling out the relevant text boxes, select the *output path* as described below and select export! *The progress bar will not change when using the custom input option, but the script will alert you when finished.*
 
 ### **CSV File**
 
