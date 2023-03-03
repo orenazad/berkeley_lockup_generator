@@ -531,7 +531,8 @@ function createDialog() {
 
             // We are using the custom input, no CSV file.
             if (customInputRadioButton.value) {
-                doFullEdit(doc, layers, options, colorSchemes, [unitNameText1.text, unitNameText2.text], endorserLineText.text)
+                doFullEdit(doc, layers, options, colorSchemes, [unitNameText1.text, unitNameText2.text], endorserLineText.text);
+                alert('done!');
             }
             else if (csvRadioButton.value) {
                 //@ts-expect-error the CSV file is in JS, so TSC gets confused.
@@ -546,17 +547,21 @@ function createDialog() {
                     const lineNumber: number = parseInt(singleLineText.text) - 2;
                     if (lineNumber >= csvJSON.length || lineNumber < 0) {
                         alert('The entered line number is not valid!');
+                        return;
                     }
                     const csvLine = csvJSON[lineNumber];
                     doCSVFullEdit(doc, layers, options, colorSchemes, csvLine);
+                    alert('done!');
                 } else if (customRangeRadioButton.value) {
                     const startNumber: number = parseInt(startRangeText.text) - 2;
                     const endNumber: number = parseInt(endRangeText.text) - 2;
                     if (startNumber < 0) {
                         alert('The entered start number is not valid!');
+                        return;
                     }
                     if (endNumber >= csvJSON.length) {
                         alert('The entered end number is not valid!');
+                        return;
                     }
                     progressbar.value = 0;
                     progressbar.maxvalue = endNumber - startNumber + 1;
@@ -567,6 +572,7 @@ function createDialog() {
                         progressbar.value++;
                         progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                     }
+                    alert('done!');
                 } else if (fullCSVButton.value) {
                     progressbar.value = 0;
                     progressbar.maxvalue = csvJSON.length;
@@ -577,6 +583,7 @@ function createDialog() {
                         progressbar.value++;
                         progressText.text = progressbar.value + '/' + progressbar.maxvalue;
                     }
+                    alert('done!');
                 } else {
                     alert('Error! None of the radio buttons were selected, but somehow the CSV button was selected. Please report this.')
                 }

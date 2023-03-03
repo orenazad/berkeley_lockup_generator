@@ -1,25 +1,32 @@
-# Berkeley Lockup Generator Usage Guide
+# Berkeley Lockup Generator Usage Guide<!-- omit from toc -->
+
+- [Quick Start](#quick-start)
+- [CMYK Exports](#cmyk-exports)
+- [Export Options](#export-options)
+- [Input Settings](#input-settings)
+- [Output](#output)
+- [Exported File Names and Artboard selection](#exported-file-names-and-artboard-selection)
+- [Script Location](#script-location)
 
 
 ## Quick Start
 
 The Lockup generator should be fairly straightforward to use, but I'll cover the more detailed nuances throughout this usage guide. Here are the basics:
 
-To start using the Lockup script, open up **Adobe Illustrator**. 
-1. Using the menu bar, click on **File -> Scripts**, and navigate to the script file, `Berkeley_Lockup_Panel.js`.
-2. Click on the top button labeled `Òpen Lockup File` to open a copy of the Lockup master document.
+To start using the Lockup script, open up **Adobe Illustrator**.
+1. Download the script package and unzip it to a location of your choosing. For more details on script location see [Script Location](#script-location).
+2. Using the menu bar, click on **File -> Scripts**, and navigate to the script file, `Berkeley_Lockup_Panel.js`.
+3. Click on the top button labeled `Òpen Lockup File` to open a copy of the Lockup master document.
    1. The script automatically creates a copy of the master document in order to make sure the master document is never corrupted or changed accidentally. Don't ever open the master document directly.
-3. If you plan on using the `CMYK` colorspace, you will now need to close the Lockup panel and change the document color mode to `CMYK`.
+4. If you plan on using the `CMYK` colorspace, you will now need to close the Lockup panel and change the document color mode to `CMYK`.
    1. Using the menu bar, click on **File -> Document Color Mode** and select `CMYK`. Do not be concerned about the incorrect looking colors on the document, these will automatically be fixed before export. The CMYK and RGB options are covered in more detail below.
    2. Re-open the script by following step 1, and continue with settings adjustment.
-4. Select your settings / fill out any needed information and hit export!
-5. Leave Illustrator **open** and **active**. Illustrator will not continue with the export otherwise.
-6. Enjoy!
+5. Select your settings / fill out any needed information and hit export!
+6. Leave Illustrator **open** and **active**. Illustrator will not continue with the export otherwise.
+7. Enjoy!
 
 
 ## CMYK Exports
-
-TODO: Make CMYK a default option.
 
 The Master Lockup document is saved with `RGB` as its document colorspace. Due to limitations with Adobe's scripting API, the script cannot always automatically adjust the colorspace to `CMYK`, or vice versa. Therefore, the script itself will use the menu bar command in order to adjust the colorspace. However, the menu bar isn't directly available immediately after opening the document, which can cause issues if we attempt to adjust it automatically.
 
@@ -55,7 +62,7 @@ The script has two options for input, manual ('Custom Input') or with a CSV file
 
 Custom input works great for one-off jobs that need to be done quickly or for any sort of testing. Simply enter the relevant information in the three text boxes present. You *only* need to enter information in the relevant text boxes. If untouched, the default text in the boxes will not be used.
 
-After filling out the relevant text boxes, select the *output path* as described in TODO: OUTPUT PATH LINK and select export! *The progress bar will not change when using the custom input option, but the script will alert you when finished.* TODO: Set an alert for custom inputs.
+After filling out the relevant text boxes, select the *output path* as described below and select export! *The progress bar will not change when using the custom input option, but the script will alert you when finished.* TODO: Set an alert for custom inputs, single line, and in general.
 
 ### **CSV File**
 
