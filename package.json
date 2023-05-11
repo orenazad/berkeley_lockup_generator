@@ -7,10 +7,11 @@
     "compile": "npx tsc",
     "copy-ai": "mkdir ./dist && cp ./src/Lockup-Master-Document.ai ./dist/Lockup-Master-Document.ai",
     "copy-fileStructurePDF": "cp ./src/File-structure.pdf ./dist/File-structure.pdf",
+    "copy-howToPDF": "cp ./how-to.pdf ./dist/how-to.pdf",
     "copy-csvjs": "cp src/CSV.js ./tmp",
     "prepend-includes": "node prepend.js",
     "bundle-jsx": "npx exsbundlr --input tmp/ScriptUIPanel.js -o dist/Berkeley_Lockup_Panel.js",
-    "build": "npm run compile && npm run copy-csvjs && npm run prepend-includes && npm run copy-ai && npm run copy-fileStructurePDF && npm run bundle-jsx && npm run clean-temp",
+    "build": "npm run compile && npm run copy-csvjs && npm run prepend-includes && npm run copy-ai && npm run copy-howToPDF && npm run copy-fileStructurePDF && npm run bundle-jsx && npm run clean-temp",
     "clean-temp": "rm -r ./tmp",
     "clean-dist": "rm -r ./dist",
     "clean": "npm run clean-dist && npm run clean-temp"
