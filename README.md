@@ -2,6 +2,14 @@
 
 **Note: These are the build instructions for the Lockup Generator tool. This is meant as a guide for future development. For instructions on how to use the tool itself, please see [how-to.md or how-to.pdf](how-to.md). Those usage guides are also delivered with every packaged distribution of the tool as well.**
 
+
+---
+<p align="middle">
+    <img width="200" alt="Screenshot of the Illustrator Panel" src="https://github.com/orenazad/berkeley_lockup_generator/assets/70298555/39e79ae1-1482-4d9a-aa6a-b633fc988e74">
+</p>
+
+---
+
 ## Build Instructions
 
 1. **Install Node.js and npm**: If you haven't installed Node.js and npm, you can download and install them from [here](https://nodejs.org/en/download/). npm comes with Node.js, so if you install Node.js, you get npm installed on your machine as well.
