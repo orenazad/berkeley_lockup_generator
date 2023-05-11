@@ -1,133 +1,107 @@
-# Berkeley Lockup Generator Usage Guide<!-- omit from toc -->
+# Berkeley Lockup Generator Build Instructions <!-- omit from toc -->
 
-- [Quick Start](#quick-start)
-- [CMYK Exports](#cmyk-exports)
-- [Export Options](#export-options)
-- [Input Settings](#input-settings)
-- [Output](#output)
-- [Exported File Names and Artboard selection](#exported-file-names-and-artboard-selection)
-- [Script Location](#script-location)
+**Note: These are the build instructions for the Lockup Generator tool. This is meant as a guide for future development. For instructions on how to use the tool itself, please see [how-to.md or how-to.pdf](how-to.md). Those usage guides are also delivered with every packaged distribution of the tool as well.**
 
+## Build Instructions
 
-## Quick Start
+1. **Install Node.js and npm**: If you haven't installed Node.js and npm, you can download and install them from [here](https://nodejs.org/en/download/). npm comes with Node.js, so if you install Node.js, you get npm installed on your machine as well.
 
-The Lockup generator should be fairly straightforward to use, but I'll cover the more detailed nuances throughout this usage guide. Here are the basics:
+2. **Clone the repository**: Open a terminal or command prompt and clone the repository using the following command:
 
-To start using the Lockup script, open up **Adobe Illustrator**.
-1. Download the script package and unzip it to a location of your choosing. For more details on script location see [Script Location](#script-location).
-2. Using the menu bar, click on **File -> Scripts**, and navigate to the script file, `Berkeley_Lockup_Panel.js`.
-3. Click on the top button labeled `Òpen Lockup File` to open a copy of the Lockup master document.
-   1. The script automatically creates a copy of the master document in order to make sure the master document is never corrupted or changed accidentally. Don't ever open the master document directly.
-4. If you plan on using the `CMYK` colorspace, you will now need to close the Lockup panel and change the document color mode to `CMYK`.
-   1. Using the menu bar, click on **File -> Document Color Mode** and select `CMYK`. Do not be concerned about the incorrect looking colors on the document, these will automatically be fixed before export. The CMYK and RGB options are covered in more detail below.
-   2. Re-open the script by following step 1, and continue with settings adjustment.
-5. Select your settings / fill out any needed information and hit export!
-6. Leave Illustrator **open** and **active**. Illustrator will not continue with the export otherwise.
-7. Enjoy!
+    ```
+    git clone https://github.com/orenazad/PA-work.git
+    ```
+   
+3. **Navigate into the project directory**: Once the repository is cloned, navigate into the project directory by typing:
 
+    ```
+    cd PA-work
+    ```
 
-## CMYK Exports
+4. **Install the dependencies**: Install the project dependencies by running:
 
-The Master Lockup document is saved with `RGB` as its document colorspace. Due to limitations with Adobe's scripting API, the script cannot always automatically adjust the colorspace to `CMYK`, or vice versa. Therefore, the script itself will use the menu bar command in order to adjust the colorspace. However, the menu bar isn't directly available immediately after opening the document, which can cause issues if we attempt to adjust it automatically.
+    ```
+    npm install
+    ```
 
-In order to work around this, if you plan on using the `CMYK`, you must manually change the document colorspace to `CMYK`. Doing so ***activates*** the menu bar, allowing the script to change the colorspace between RGB and CMYK as needed on it's own. *This should be done anytime the document is re-opened if `CMYK` is being used*.
+    This command installs all the dependencies listed in your `package.json` file. See below for more info on the dependencies.
 
-The script automatically sets the correct `RGB` and `CMYK` colors throughout the exporting process. Since the original document colors are `RGB` the colors will initially look incorrect when the document colorspace is manually changed to `CMYK`. As mentioned, the script will automatically correct this.
+5. **Build the project**: Run the build script defined in your `package.json`:
 
-The script is peppered with checks everywhere to warn you if there are any colorspace issues, and will instruct you on how to fix it.
+    ```
+    npm run build
+    ```
 
-## Export Options
+    This command will compile the TypeScript files into JavaScript, copy specified files to the `dist` directory, and bundle your JSX files nicely into a single file for delivery. **Please see more details about build complexities down below.**
 
-- **Export PNG**: If selected, the script will export PNG files, along with any other selected file formats. Please note that PNG files do *not* support `CMYK`, so PNG files will only be created if `RGB` is selected. 
+    In order to build the project after making changes, you should run:
 
-- **Export EPS**: If selected, the script will export EPS files, along with any other selected file formats. EPS supports both RBG and CMYK, and will therefore be created for both.
+    ```
+    npm run clean
+    npm run build
+    ```
 
-- **Export PDF**: If selected, the script will export PDF files, along with any other selected file formats. PDF supports both RBG and CMYK, and will therefore be created for both.
+And that's it! You've successfully built the project. From here, you can work on the panel or zip up the `dist` directory for distribution.
 
-- **Hide Logo Option and TM on EPS/PDF**: If selected, the logo option (currently the UC line) and the Trademark symbol will be hidden on EPS and PDF exports. End users will be able to use Illustrator or other software to turn these layers back on, if they would like.
+Please note that these instructions assume that you have `git` installed on your machine. If not, you can download it from [here](https://git-scm.com/downloads). 
 
-- **Remove Logo Option and TM on PNG**: If selected, the logo option (currently the UC line) and the Trademark symbol will be completely removed from PNG exports. These will not be able to be added back in to the exported image.
+## Adobe ExtendScript 
 
-### **Colorspace**
+ExtendScript is an extended form of JavaScript (following the ECMA-262 specification) developed by Adobe for use in all of their Creative Cloud applications. The [Adobe ExtendScript Guide](https://extendscript.docsforadobe.dev/introduction/extendscript-overview.html) and the [Illustrator Scripting Guide](https://ai-scripting.docsforadobe.dev/) contain all the documentation needed to get up to date on the intracies of ExtendScript and how use it with Illustrator.
 
-- **RGB**: If selected, the script will export the *selected* file formats in RGB colorspace, as well as any other selected colorspaces.
-- **CMYK**: If selected, the script will export the *selected* file formats in CMYK colorspace, as well as any other selected colorspaces. Please note that PNG files do not support CMYK colorspace, and so they will not be exported as a CMYK option. If both CMYK and RGB are selected, PNGs will be exported in the RGB colorspace as expected.
+## Dependencies
 
+The first two dependencies are development dependencies. This means they aren't needed for the end user, but are necessary for developing and building the app.
 
-## Input Settings
+1. **`typescript (4.9.4)`:** Typescript is a statically typed superset of Javascript that compiles to plain JavaScript, which ExtendScript is based off of. Since TypeScript requires static typing, generated types are needed for all of Adobe's ExtendScript types. You can find these in [ts-types](src/ts-types/).
+   1. The typescript types are maintained by the scripting community [here](https://github.com/aenhancers/Types-for-Adobe), though I've made some corrections to the files in this repository.
+2. **`extendscript-bundlr (0.4.0)`:** This tool allows us to bundle several ExtendScript files into one final script for delivery. It uses the includes at the top of ExtendScript files, but this has been slightly complicated by TypeScript. Details are explained below in the Build Details. 
 
-The script has two options for input, manual ('Custom Input') or with a CSV file.
+The following dependency is needed for the end-user, but is automatically bundled into the final deliverable.
 
-### **Custom Input**
+3. **[Extend Script CSV Reader:](https://github.com/ff6347/extendscript.csv)** This is used to parse CSV files using Adobe's ExtendScript. Other CSV reading routines or libraries don't use the old ECMA-262 standard for JavaScript, so they may not work. This is included as [src/CSV.js](src/CSV.js), and is automatically bundled into the final Javascript deliverable.
 
-Custom input works great for one-off jobs that need to be done quickly or for any sort of testing. Simply enter the relevant information in the three text boxes present. You *only* need to enter information in the relevant text boxes. If untouched, the default text in the boxes will not be used.
+## Build Details
 
-After filling out the relevant text boxes, select the *output path* as described below and select export! *The progress bar will not change when using the custom input option, but the script will alert you when finished.*
+The build details have been slightly complicated by a few of ExtendScript's and TypeScript's quirks, and some of the interactions between the two. 
 
-### **CSV File**
-
-In order to use a CSV file, select the '**Use CSV**' radio button, which will activate all the CSV input settings. Use the button to the right of '**CSV Input Path**' in order to select the CSV file using your operating system's file explorer. The CSV file path will be displayed after selection.
-
-The script expects the CSV file to follow a certain format. **Therefore, you should *only* use a CSV file downloaded from the designated Lockup Request Google Sheet.**
-
-**Full CSV File**: If selected, the script will generate lockups, according to the settings selected in the panel, for every line in the CSV file. The progress bar will update and you will be alerted when the script is done.
-
-**Single Line**: If selected, the script will generate one set of lockups, according to the settings selected in the panel, for the inputted line from the CSV file. The progress bar will not update, but you will be alerted when the script is done.
-
-**Custom Range**: If selected, the script will generate several lockups, according to the settings selected in the panel, for a *range* of lines from the CSV file. **The line ranges are *inclusive* which means that the the entered *start* and *end* lines will *also* be exported, in addition to everything in between**. The progress bar will update and you will be alerted when the script is done.
-
-## Output
-
-Finally, you can select an output folder to export all the generated Lockups to. Use the button to the right of '**Outputh Path**' in order to select the desired folder using your operating system's file explorer. This folder will hold all the top-level 'Unit Name' folders, one for each individual Lockup request. The folders will be named as a concatenation of the first unit name line and the second, if it exists. So the 'template' is essentially: `unitNameLine1_unitNameLine2`. This will create the following folder structure:
-
-<pre><code>
-┌─────────────────────────────────┐
-│ ../../../selectedOutputFolder/  │
-└─────────────────────────────────┘
-                 │
-                 │     ┌─────────────────────────────┐
-                 ├────▶│ unitNameLine1_unitNameLine2 │
-                 │     └─────────────────────────────┘
-                 │                    │
-                 │                    │
-                 │                    │    ┌──────────────────────────────┐
-                 │                    ├───▶│ Horizontal Lockups (default) │
-                 │                    │    └──────────────────────────────┘
-                 │                    │
-                 │                    │    ┌──────────────────────────────┐
-                 │                    └───▶│       Vertical Lockups       │
-                 │                         └──────────────────────────────┘
-                 │
-                 │
-                 │     ┌─────────────────────────────┐
-                 ├────▶│ unitNameLine1_unitNameLine2 │
-                 │     └─────────────────────────────┘
-                 │
-                 │     ┌─────────────────────────────┐
-                 └────▶│ unitNameLine1_unitNameLine2 │
-                       └─────────────────────────────┘
-</code></pre>
->**The script automatically overwrites files that share the same name and full file path as a lockup that is about to be exported.**
-
-The script will also automatically copy a PDF explainer of the file structure into each top-level 'Unit Name' folder, for the use of end users.
-
-## Exported File Names and Artboard selection
-
-The script automatically selects which artboards to export based of the three inputs for each lockup request:
-1. Unit Name Line 1 (required)
-2. Unit Name Line 2 (optional)
-3. Endorser Line (optional)
-
-Based on the combination of which one of these are filled (or not!), the script will choose which of the 7 artboards to edit and output. The filename for each outputted artboard will be the *artboard name* in Illustrator, prepended with the file format. Such as: 
-
-```
-eps_Horizontal_Large_1_Line_No_Endorser.eps
-pdf_Horizontal_Large_1_Line_No_Endorser.pdf
-png_Horizontal_Large_1_Line_No_Endorser.png
+See [package.json](package.json):
+```json
+"scripts": {
+    "compile": "npx tsc",
+    "copy-ai": "mkdir ./dist && cp ./src/Lockup-Master-Document.ai ./dist/Lockup-Master-Document.ai",
+    "copy-fileStructurePDF": "cp ./src/File-structure.pdf ./dist/File-structure.pdf",
+    "copy-howToPDF": "cp ./how-to.pdf ./dist/how-to.pdf",
+    "copy-csvjs": "cp src/CSV.js ./tmp",
+    "prepend-includes": "node prepend.js",
+    "bundle-jsx": "npx exsbundlr --input tmp/ScriptUIPanel.js -o dist/Berkeley_Lockup_Panel.js",
+    "build": "npm run compile && npm run copy-csvjs && npm run prepend-includes && npm run copy-ai && npm run copy-howToPDF && npm run copy-fileStructurePDF && npm run bundle-jsx && npm run clean-temp",
+    "clean-temp": "rm -r ./tmp",
+    "clean-dist": "rm -r ./dist",
+    "clean": "npm run clean-dist && npm run clean-temp"
+  }
 ```
 
-Prepending the file format to the artboard name allows the files to be organized by default when sent to the end user, as most operating systems sort by name as the default option. End-users can still also sort by file format, ofcourse, but this keeps things looking tidy throughout delivery.
+In order from the `npm run build` command:
 
-## Script Location
+1. `npm run compile`: This compiles `ScriptUIPanel.ts` and `utilities.ts` into their corresponding JS files. As you can see in [tsconfig.json](tsconfig.json), the out directory is set to `/tmp`. 
+2. `npm run copy-csvjs`: This copies the CSV ExtendScript library into the `tmp` folder. Where it will eventually be bundled with the other Javascript files into one file.
+3. `npm run prepend-includes`: This command runs [prepend.js](prepend.js), which prepends ExtendScript includes onto the generated ScriptUIPanel.js in the `tmp` directory. These needed to be added after compilation, as these lines throw specific Typescript compiler errors which cannot be ignored. Further, the typescript compiler has been configured to remove all comments, so these must be added back in.
+   * The TSC has been configured to remove comments to avoid errors in ExtendScript. In order to ignore certain TypeScript errors due to the quirks of ExtendScript, the following is used:
+   ```ts
+   //@ts-expect-error
+   ```
+   * However, due to the `@` in the comment, ExtendScript attempts to use this line, as it is exactly similiar to how includes are used in ExtendScript, causing an error:
+   ```js
+   //@include 'utilities.js'
+   ```
+   * To summarize, both TypeScript and ExtendScript use `//@` differently, so this is necessary to avoid errors on either end.
+4. `npm run copy ai`: This creates the *distribution directory* `/dist`, and copies the Lockup Master document into it.
+5. `npm run copy-howToPDF`: Copies the how-to PDF into the distribution directory.
+6. `npm run copy-fileStructurePDF`: Copies the file structure PDF into the distribution directory.
+7. `npm run bundle-jsx`: This uses the ExtendScript Bundler to bundle every JS file that is included in `tmp/ScriptUIPanel.js`. As such, these will be the includes written in `prepend.js`. It outputs the final single file to `dist/Berkeley_Lockup_Panel.js`, which can be run in Illustrator!
+8. `npm run clean-temp`: Deletes the `tmp` folder that was created in the build process. There are also two other clean commands that you can see above, but aren't used in the build process!
 
-The script can be placed wherever you would like on your computer. However, I reccomend not nesting it through a series of folders so that you can access it easily. Because the script relies on other files nearby it for various tasks (such as the copying the master document of PDF file structure explainer), it cannot be placed in Adobe's default scripting location. Placing it in Adobe's default scripting location, even alongside the additional files, would break the script as that folder isn't granted full permissions. Unfortunately, this means it is impossible to have the script show up as a quick-select option on the menu bar under **File -> Scripts**.
+## Tip: ScriptUI Builder
+
+[scriptui.joonas.me](https://scriptui.joonas.me/) is a great website you can use to make changes to the UI of the panel far more efficiently than by writing the native code. You can import the commented code at the top of `ScriptUIPanel.ts` into the webapp to load the current ScriptUI details. The current version of the panel has had slight adjustments made outside of the website, however, so they are not currently 1:1 but are extremely close.
