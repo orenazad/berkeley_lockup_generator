@@ -3,9 +3,10 @@
 **Note: These are the build instructions for the Lockup Generator tool. This is meant as a guide for future development. For instructions on how to use the tool itself, please see [how-to.md or how-to.pdf](how-to.md). Those usage guides are also delivered with every packaged distribution of the tool as well.**
 
 
+
 ---
 <p align="middle">
-    <img width="200" alt="Screenshot of the Illustrator Panel" src="https://github.com/orenazad/berkeley_lockup_generator/assets/70298555/39e79ae1-1482-4d9a-aa6a-b633fc988e74">
+    <img width="200" alt="Screenshot at May 10 20-31-57" src="https://github.com/orenazad/berkeley_lockup_generator/assets/70298555/4735947c-af0f-4a3b-9cc1-a7420b715e6f">
 </p>
 
 ---
